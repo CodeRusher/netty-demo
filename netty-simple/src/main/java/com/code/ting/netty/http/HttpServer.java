@@ -12,6 +12,7 @@ import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -27,6 +28,9 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.HttpVersion;
 import java.net.InetSocketAddress;
 
+/**
+ * see https://github.com/netty/netty/blob/4.1/example/src/main/java/io/netty/example/http/helloworld/HttpHelloWorldServer.java
+ */
 public class HttpServer {
 
     private final int port;
@@ -37,11 +41,12 @@ public class HttpServer {
 
     public void start() throws Exception {
         final AppHandler serverHandler = new AppHandler();
-        EventLoopGroup boss = new NioEventLoopGroup();
+        EventLoopGroup boss = new NioEventLoopGroup(1);
         EventLoopGroup worker = new NioEventLoopGroup();
 
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
+            bootstrap.option(ChannelOption.SO_BACKLOG,1024);
             bootstrap.group(boss, worker)
                 .channel(NioServerSocketChannel.class)
                 .localAddress(new InetSocketAddress(port))
@@ -91,7 +96,6 @@ public class HttpServer {
         }
 
 
-
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
             throws Exception {
@@ -99,14 +103,13 @@ public class HttpServer {
             ctx.close();
         }
 
-
     }
 
     public static void main(String[] args) throws Exception {
         int port = 8080;
-//        if(StringUtils.isNotBlank(args[0])){
-//            port = Integer.parseInt(args[0]);
-//        }
+        if (args.length > 1) {
+            port = Integer.parseInt(args[0]);
+        }
 
         HttpServer server = new HttpServer(port);
         server.start();
