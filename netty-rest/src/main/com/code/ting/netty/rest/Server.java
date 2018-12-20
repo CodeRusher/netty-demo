@@ -25,8 +25,8 @@ public class Server {
 
     public void run() throws InterruptedException {
         ServerBootstrap bootstrap = new ServerBootstrap();
-        NioEventLoopGroup group = new NioEventLoopGroup();
-        NioEventLoopGroup child = new NioEventLoopGroup();
+        NioEventLoopGroup boss = new NioEventLoopGroup();
+        NioEventLoopGroup worker = new NioEventLoopGroup();
         try {
             bootstrap.group(new NioEventLoopGroup(), new NioEventLoopGroup())
                 .channel(NioServerSocketChannel.class)
@@ -46,8 +46,8 @@ public class Server {
             ChannelFuture f = bootstrap.bind().sync();
             f.channel().closeFuture().sync();
         } finally {
-            group.shutdownGracefully().sync();
-            child.shutdownGracefully().sync();
+            boss.shutdownGracefully().sync();
+            worker.shutdownGracefully().sync();
         }
 
     }

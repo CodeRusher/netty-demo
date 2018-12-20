@@ -41,7 +41,6 @@ public class SpringMvcChannelHandler extends SimpleChannelInboundHandler<HttpReq
             log.error("SpringMvcChannelHandler error:{}", e.getMessage(), e);
         }
 
-
     }
 
     @Override
