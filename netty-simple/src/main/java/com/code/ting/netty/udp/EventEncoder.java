@@ -5,10 +5,11 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageDecoder;
+import io.netty.handler.codec.MessageToMessageEncoder;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-public class EventEncoder extends MessageToMessageDecoder<Event> {
+public class EventEncoder extends MessageToMessageEncoder<Event> {
 
     private InetSocketAddress remoteAddress;
 
@@ -17,14 +18,15 @@ public class EventEncoder extends MessageToMessageDecoder<Event> {
     }
 
 
+
+
     @Override
-    protected void decode(ChannelHandlerContext ctx, Event e, List<Object> out) throws Exception {
+    protected void encode(ChannelHandlerContext ctx, Event e, List<Object> out) throws Exception {
         int tag = e.getTag();
         byte[] msg = e.getMsg().getBytes();
         ByteBuf buf = ctx.alloc().buffer(4 + msg.length);
         buf.writeInt(tag);
         buf.writeBytes(msg);
         out.add(new DatagramPacket(buf, remoteAddress));
-
     }
 }
