@@ -43,6 +43,10 @@ public class DispatcherServletChannelInitializer extends ChannelInitializer<Sock
 
     @Override
     protected void initChannel(SocketChannel channel) throws Exception {
+        /**
+         *  Inbound: HttpRequestDecoder --> HttpObjectAggregator --> ServletChannelHandler
+         *  OutBound: HttpResponseEncoder --> ChunkedWriteHandler
+         */
         ChannelPipeline pipeline = channel.pipeline();
         pipeline.addLast("decoder", new HttpRequestDecoder());
         pipeline.addLast("aggregator", new HttpObjectAggregator(65536));
