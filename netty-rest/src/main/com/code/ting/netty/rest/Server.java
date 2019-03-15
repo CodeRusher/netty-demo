@@ -21,15 +21,17 @@ public class Server {
         NioEventLoopGroup boss = new NioEventLoopGroup();
         NioEventLoopGroup worker = new NioEventLoopGroup();
         try {
-            bootstrap.group(new NioEventLoopGroup(), new NioEventLoopGroup())
+            bootstrap
+                .group(new NioEventLoopGroup(), new NioEventLoopGroup())
                 .channel(NioServerSocketChannel.class)
                 .localAddress(port)
-                .childHandler(new DispatcherServletChannelInitializer(
-                    new String[]{"com.code.ting.netty.rest"}));
+                .childHandler(
+                    new DispatcherServletChannelInitializer(new String[]{"com.code.ting.netty.rest"}));
 
             ChannelFuture f = bootstrap.bind().sync();
             log.info("server started...");
             f.channel().closeFuture().sync();
+
         } finally {
             boss.shutdownGracefully().sync();
             worker.shutdownGracefully().sync();

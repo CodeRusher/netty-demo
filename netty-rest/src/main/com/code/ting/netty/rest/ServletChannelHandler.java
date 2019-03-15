@@ -41,12 +41,11 @@ public class ServletChannelHandler extends SimpleChannelInboundHandler<FullHttpR
         // mock servlet
         MockHttpServletRequest servletRequest = createServletRequest(fullHttpRequest);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+
         this.servlet.service(servletRequest, servletResponse);
 
         HttpResponseStatus status = HttpResponseStatus.valueOf(servletResponse.getStatus());
-
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, status);
-
         for (String name : servletResponse.getHeaderNames()) {
             for (Object value : servletResponse.getHeaderValues(name)) {
                 response.headers().set(name, value);
