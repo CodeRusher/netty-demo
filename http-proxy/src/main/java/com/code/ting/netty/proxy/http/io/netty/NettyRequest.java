@@ -4,12 +4,11 @@ package com.code.ting.netty.proxy.http.io.netty;
 import com.code.ting.netty.proxy.http.chain.context.Request;
 import com.google.common.collect.Maps;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
-public class NettyRequest implements Request<Channel> {
+public class NettyRequest implements Request {
 
     @Getter
     @Setter
@@ -17,6 +16,9 @@ public class NettyRequest implements Request<Channel> {
     @Getter
     @Setter
     private String url;
+    @Getter
+    @Setter
+    private String version;
     @Setter
     private String requestLine;
 
@@ -39,6 +41,16 @@ public class NettyRequest implements Request<Channel> {
         return headers.get(key);
     }
 
+    @Override
+    public Map<String, String> getHeaders() {
+        return null;
+    }
+
+    @Override
+    public byte[] getRequestHeader() {
+        return new byte[0];
+    }
+
 
     @Override
     public byte[] getBody() {
@@ -47,6 +59,6 @@ public class NettyRequest implements Request<Channel> {
 
     @Getter
     @Setter
-    private Channel receiver;
+    private Object receiver;
 
 }

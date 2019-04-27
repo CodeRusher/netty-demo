@@ -5,7 +5,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
-public class HttpParser {
+public class HttpRequestParser {
 
     @Getter
     private NettyRequest request = new NettyRequest();

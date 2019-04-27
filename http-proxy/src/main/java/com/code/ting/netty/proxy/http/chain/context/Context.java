@@ -6,14 +6,14 @@ import java.util.HashMap;
 import lombok.Getter;
 import lombok.Setter;
 
-public class Context<R, S> {
+public class Context {
 
     @Getter
     @Setter
-    private Request<R> request;
+    private Request request;
     @Getter
     @Setter
-    private Response<S> response;
+    private Response response;
 
     @Getter
     private HashMap<Class<Process>, Object> data = Maps.newHashMap();

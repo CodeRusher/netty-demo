@@ -1,19 +1,27 @@
 package com.code.ting.netty.proxy.http.chain.context;
 
 
-public interface Request<R> {
+import java.util.Map;
+
+public interface Request {
 
     String getMethod();
 
     String getUrl();
 
+    String getVersion();
+
     String getHeader(String key);
+
+    Map<String, String> getHeaders();
 
     boolean isFull();
 
+    byte[] getRequestHeader();
+
     byte[] getBody();
 
-    void setReceiver(R receiver);
+    void setReceiver(Object receiver);
 
-    R getReceiver();
+    Object getReceiver();
 }

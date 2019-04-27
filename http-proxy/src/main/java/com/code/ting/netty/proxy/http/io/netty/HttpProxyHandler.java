@@ -7,6 +7,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import java.net.Socket;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -14,7 +15,7 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
 
     private ProcessorChain chain;
     private Context context;
-    private HttpParser httpParser = new HttpParser();
+    private HttpRequestParser httpParser = new HttpRequestParser();
 
     public HttpProxyHandler(ProcessorChain chain) {
         this.chain = chain;
@@ -24,9 +25,13 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
 
         if (httpParser.isComplete()) {
-            Channel receiver = httpParser.getRequest().getReceiver();
+            Object receiver = httpParser.getRequest().getReceiver();
             if (receiver != null) {
-                receiver.writeAndFlush(msg);
+                if (receiver instanceof Socket) {
+//                    Socket socket = (Socket)receiver;
+//                    socket.getOutputStream().write(((ByteBuf)msg).array());
+
+                }
             }
         }
 
@@ -39,10 +44,10 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
         }
 
         // gen Context
-        Context<Channel, Channel> context = new Context<>();
+        Context context = new Context();
         context.setRequest(httpParser.getRequest());
         NettyResponse response = new NettyResponse();
-        response.channel = ctx.channel();
+        response.sender = ctx.channel();
         context.setResponse(response);
 
         // fire chain

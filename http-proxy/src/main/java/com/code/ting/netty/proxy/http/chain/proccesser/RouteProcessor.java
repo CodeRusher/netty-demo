@@ -4,32 +4,24 @@ package com.code.ting.netty.proxy.http.chain.proccesser;
 import com.code.ting.netty.proxy.http.chain.Processor;
 import com.code.ting.netty.proxy.http.chain.context.Context;
 import com.code.ting.netty.proxy.http.chain.context.Request;
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
+import com.code.ting.netty.proxy.http.chain.context.Response;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
+import java.net.Socket;
+import java.util.concurrent.TimeUnit;
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
 
 public class RouteProcessor implements Processor {
 
-    private Channel caller;
+    private Call.Factory callFactory = new OkHttpClient.Builder()
+        .connectTimeout(5, TimeUnit.SECONDS)
+        .readTimeout(20, TimeUnit.SECONDS)
+        .writeTimeout(20, TimeUnit.SECONDS)
+        .build();
 
     public RouteProcessor() {
-        Bootstrap b = new Bootstrap();
-        b.group(new NioEventLoopGroup(1))
-            .channel(NioSocketChannel.class)
-            .handler(new ChannelInitializer<SocketChannel>() {
-                @Override
-                protected void initChannel(SocketChannel ch) throws Exception {
-                    ch.pipeline().addLast(new CallerHandler());
-                }
-            });
-        ChannelFuture f = b.connect("", 8887);
-        caller = f.channel();
+
     }
 
     @Override
@@ -40,10 +32,20 @@ public class RouteProcessor implements Processor {
     @Override
     public boolean process(Context context) {
         Request request = context.getRequest();
-        if (request.isFull()) {
+        Response response = context.getResponse();
 
-        } else {
-            request.setReceiver(caller);
+        try {
+            Socket socket = new Socket("", 8888);
+            socket.getOutputStream().write(request.getRequestHeader());
+            if (request.isFull()) {
+                socket.getOutputStream().write(request.getBody());
+            } else {
+                request.setReceiver(socket);
+            }
+
+
+        } catch (Exception e) {
+
         }
 
         return true;

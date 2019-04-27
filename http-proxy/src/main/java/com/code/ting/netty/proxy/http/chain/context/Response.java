@@ -1,7 +1,7 @@
 package com.code.ting.netty.proxy.http.chain.context;
 
 
-public interface Response<S> {
+public interface Response {
 
     String getHeader(String key);
 
@@ -11,6 +11,6 @@ public interface Response<S> {
 
     byte[] getBody();
 
-    S getSender();
+    Object getSender();
 
 }
