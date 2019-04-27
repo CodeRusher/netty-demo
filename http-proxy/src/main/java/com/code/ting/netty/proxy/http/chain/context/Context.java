@@ -4,17 +4,18 @@ package com.code.ting.netty.proxy.http.chain.context;
 import com.google.common.collect.Maps;
 import java.util.HashMap;
 import lombok.Getter;
+import lombok.Setter;
 
-public class Context<T> {
-
-    @Getter
-    private Request<T> request;
-    @Getter
-    private Response<T> response;
+public class Context<R, S> {
 
     @Getter
-    private HashMap<Class,Object> data = Maps.newHashMap();
+    @Setter
+    private Request<R> request;
+    @Getter
+    @Setter
+    private Response<S> response;
 
-    private boolean throwed = false;
+    @Getter
+    private HashMap<Class<Process>, Object> data = Maps.newHashMap();
 
 }

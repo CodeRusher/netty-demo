@@ -1,11 +1,16 @@
 package com.code.ting.netty.proxy.http.chain.context;
 
 
-public interface Response<T> {
+public interface Response<S> {
 
-    void addHead(String key, String value);
+    String getHead(String key);
 
     void writeBody(byte[] body);
 
-    void direct(T data);
+    boolean isFull();
+
+    byte[] getBody();
+
+    S getSender();
+
 }

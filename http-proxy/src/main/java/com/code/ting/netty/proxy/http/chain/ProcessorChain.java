@@ -55,7 +55,7 @@ public class ProcessorChain {
         }
     }
 
-    private void handleThrowable(Context context){
+    public void handleThrowable(Context context){
         context.getResponse().writeBody("error".getBytes());
     }
 

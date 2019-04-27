@@ -1,7 +1,7 @@
 package com.code.ting.netty.proxy.http.chain.context;
 
 
-public interface Request<T> {
+public interface Request<R> {
 
     String getMethod();
 
@@ -9,7 +9,11 @@ public interface Request<T> {
 
     String getHead(String key);
 
+    boolean isFull();
+
     byte[] getBody();
 
-    T direct();
+    void setReceiver(R receiver);
+
+    R getReceiver();
 }
