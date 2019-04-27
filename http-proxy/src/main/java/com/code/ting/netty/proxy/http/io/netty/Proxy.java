@@ -1,9 +1,9 @@
 package com.code.ting.netty.proxy.http.io.netty;
 
 
-import com.code.ting.netty.proxy.http.chain.ProccesserChain;
-import com.code.ting.netty.proxy.http.chain.proccesser.AuthProccessor;
-import com.code.ting.netty.proxy.http.chain.proccesser.RouteProccessor;
+import com.code.ting.netty.proxy.http.chain.ProcessorChain;
+import com.code.ting.netty.proxy.http.chain.proccesser.AuthProcessor;
+import com.code.ting.netty.proxy.http.chain.proccesser.RouteProcessor;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -27,7 +27,7 @@ public class Proxy {
 
 
     public void start() throws InterruptedException {
-        ProccesserChain chain = new ProccesserChain();
+        ProcessorChain chain = buildChain();
 
         EventLoopGroup boss = new NioEventLoopGroup(1);
         EventLoopGroup worker = new NioEventLoopGroup();
@@ -57,10 +57,10 @@ public class Proxy {
         }
     }
 
-    private ProccesserChain buildChain(){
-        ProccesserChain chain = new ProccesserChain();
-        chain.addProccesser(new AuthProccessor());
-        chain.addProccesser(new RouteProccessor());
+    private ProcessorChain buildChain(){
+        ProcessorChain chain = new ProcessorChain();
+        chain.addProcessor(new AuthProcessor());
+        chain.addProcessor(new RouteProcessor());
 
         return chain;
     }

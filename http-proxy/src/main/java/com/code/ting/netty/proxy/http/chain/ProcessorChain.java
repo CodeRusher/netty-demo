@@ -6,25 +6,25 @@ import java.util.LinkedList;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ProccesserChain {
+public class ProcessorChain {
 
-    private LinkedList<Proccesser> proccessers = new LinkedList<>();
+    private LinkedList<Processor> processors = new LinkedList<>();
 
 
-    public void addProccesser(Proccesser proccesser) {
-        proccessers.add(proccesser);
+    public void addProcessor(Processor processor) {
+        processors.add(processor);
     }
 
     public void fireChain(Context context) {
 
         int index = 0;
         boolean throwed = false;
-        for (int i = 0; i < proccessers.size(); i++) {
-            Proccesser p = proccessers.get(i);
+        for (int i = 0; i < processors.size(); i++) {
+            Processor p = processors.get(i);
             index = i;
             try {
                 p.pre(context);
-                if (!p.proccess(context)) {
+                if (!p.process(context)) {
                     break;
                 }
             } catch (Throwable t) {
@@ -37,10 +37,10 @@ public class ProccesserChain {
             }
         }
 
-        // Proccesser.after must invoke
+        // Processor.after must invoke
         while (index >= 0) {
             try {
-                Proccesser p = proccessers.get(index);
+                Processor p = processors.get(index);
                 p.after(context);
             } catch (Throwable t) {
                 log.error("error in chain.after :{}", t.getMessage(), t);
