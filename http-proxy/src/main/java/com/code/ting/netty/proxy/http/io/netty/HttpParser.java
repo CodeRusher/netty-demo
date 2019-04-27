@@ -40,7 +40,7 @@ public class HttpParser {
             }
 
             if (headerReaded) {
-                if (Integer.parseInt(request.getHead("")) <= 1024) {
+                if (Integer.parseInt(request.getHeader("")) <= 1024) {
                     request.setFull(true);
                 }
             }

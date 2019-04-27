@@ -35,7 +35,7 @@ public class NettyRequest implements Request<Channel> {
 
 
     @Override
-    public String getHead(String key) {
+    public String getHeader(String key) {
         return headers.get(key);
     }
 

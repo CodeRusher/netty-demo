@@ -17,7 +17,7 @@ public class NettyResponse implements Response<Channel> {
     private Map<String, String> headers = Maps.newHashMap();
 
     @Override
-    public String getHead(String key) {
+    public String getHeader(String key) {
         return headers.get(key);
     }
 

@@ -7,7 +7,7 @@ public interface Request<R> {
 
     String getUrl();
 
-    String getHead(String key);
+    String getHeader(String key);
 
     boolean isFull();
 

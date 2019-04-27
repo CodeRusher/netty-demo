@@ -3,7 +3,7 @@ package com.code.ting.netty.proxy.http.chain.context;
 
 public interface Response<S> {
 
-    String getHead(String key);
+    String getHeader(String key);
 
     void writeBody(byte[] body);
 

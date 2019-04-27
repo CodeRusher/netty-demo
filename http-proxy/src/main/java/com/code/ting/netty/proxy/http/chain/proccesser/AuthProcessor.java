@@ -14,7 +14,7 @@ public class AuthProcessor implements Processor {
 
     @Override
     public boolean process(Context context) {
-        if (StringUtils.isBlank(context.getRequest().getHead("auth"))) {
+        if (StringUtils.isBlank(context.getRequest().getHeader("auth"))) {
             return false;
         }
 
