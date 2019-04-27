@@ -1,11 +1,16 @@
 package com.code.ting.netty.proxy.http.io.netty;
 
 
+import com.code.ting.netty.proxy.http.chain.ProccesserChain;
+import com.code.ting.netty.proxy.http.chain.proccesser.AuthProccessor;
+import com.code.ting.netty.proxy.http.chain.proccesser.RouteProccessor;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import java.net.InetSocketAddress;
 
@@ -22,6 +27,8 @@ public class Proxy {
 
 
     public void start() throws InterruptedException {
+        ProccesserChain chain = new ProccesserChain();
+
         EventLoopGroup boss = new NioEventLoopGroup(1);
         EventLoopGroup worker = new NioEventLoopGroup();
 
@@ -32,7 +39,12 @@ public class Proxy {
             bootstrap.group(boss, worker)
                 .channel(NioServerSocketChannel.class)
                 .localAddress(new InetSocketAddress(port))
-                .childHandler(new HttpProxyChannelInitializer());
+                .childHandler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(new HttpProxyHandler(chain));
+                    }
+                });
 
             ChannelFuture f = bootstrap.bind().sync();
             System.out.println("started...");
@@ -43,6 +55,14 @@ public class Proxy {
             boss.shutdownGracefully().sync();
             worker.shutdownGracefully().sync();
         }
+    }
+
+    private ProccesserChain buildChain(){
+        ProccesserChain chain = new ProccesserChain();
+        chain.addProccesser(new AuthProccessor());
+        chain.addProccesser(new RouteProccessor());
+
+        return chain;
     }
 
     public static void main(String[] args) throws InterruptedException {

@@ -8,11 +8,21 @@ import org.apache.commons.lang3.StringUtils;
 public class AuthProccessor implements Proccesser {
 
     @Override
+    public void pre(Context context) {
+
+    }
+
+    @Override
     public boolean proccess(Context context) {
         if (StringUtils.isBlank(context.getRequest().getHead("auth"))) {
             return false;
         }
 
         return true;
+    }
+
+    @Override
+    public void after(Context context) {
+
     }
 }
