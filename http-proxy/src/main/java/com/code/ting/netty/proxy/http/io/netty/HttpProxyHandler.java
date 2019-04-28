@@ -41,7 +41,13 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
             if (!httpParser.getRequest().isFull()) {
                 Connector connector = httpParser.getContext().getConnector();
                 if (connector.getClient() instanceof Channel) {
+                    // completed???
                     ((Channel) (connector.getClient())).writeAndFlush(msg);
+
+                }
+
+                if (connector.getClient() instanceof java.net.Socket) {
+                    // ...
                 }
             }
         }
@@ -56,7 +62,12 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
             return;
         }
 
+
         /*---------------------  chain  ---------------------------*/
+        // disable until client is ready
+        if (!context.getRequest().isFull()) {
+            ctx.channel().config().setAutoRead(false);
+        }
         // gen NettyContext
         context.setRequest(httpParser.getRequest());
         NettyResponse response = new NettyResponse();
