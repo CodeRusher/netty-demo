@@ -3,7 +3,7 @@ package com.code.ting.netty.proxy.http.io.netty;
 
 import com.code.ting.netty.proxy.http.chain.ProcessorChain;
 import com.code.ting.netty.proxy.http.chain.processor.AuthProcessor;
-import com.code.ting.netty.proxy.http.chain.processor.NettyRouteProcessor;
+import com.code.ting.netty.proxy.http.io.netty.proxy.HttpProxyHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -42,7 +42,8 @@ public class Proxy {
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(new HttpProxyHandler(chain));
+                        ch.attr(Consts.CHAIN_KEY).set(chain);
+                        ch.pipeline().addLast(new HttpProxyHandler());
                     }
                 });
 
@@ -51,16 +52,15 @@ public class Proxy {
             f.channel().closeFuture().sync();
 
         } finally {
-
             boss.shutdownGracefully().sync();
             worker.shutdownGracefully().sync();
         }
     }
 
-    private ProcessorChain buildChain(){
+    private ProcessorChain buildChain() {
         ProcessorChain chain = new ProcessorChain();
         chain.addProcessor(new AuthProcessor());
-        chain.addProcessor(new NettyRouteProcessor());
+        chain.addProcessor(new NettyRouteProcessor(chain));
 
         return chain;
     }

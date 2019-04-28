@@ -4,6 +4,7 @@ package com.code.ting.netty.proxy.http.chain.context;
 import java.util.HashMap;
 
 public interface Context {
+
     Request getRequest();
 
     Response getResponse();
@@ -13,5 +14,12 @@ public interface Context {
     Status getStatus();
 
     HashMap<Class<Process>, Object> getData();
+
+    void directResponse(byte[] data);
+
+    Long getId();
+
+    void setId(Long id);
+
 
 }

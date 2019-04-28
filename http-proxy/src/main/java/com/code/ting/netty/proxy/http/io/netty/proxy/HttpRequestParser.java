@@ -1,4 +1,4 @@
-package com.code.ting.netty.proxy.http.io.netty;
+package com.code.ting.netty.proxy.http.io.netty.proxy;
 
 
 import com.code.ting.netty.proxy.http.chain.context.Status;
@@ -20,7 +20,12 @@ public class HttpRequestParser {
     @Getter
     private NettyRequest request = new NettyRequest();
 
+    @Getter
     private int contentLength;
+
+    @Getter
+    @Setter
+    private int bodyReadedLength = 0;
 
 
     public void parse(ByteBuf in) {

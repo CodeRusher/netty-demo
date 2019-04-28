@@ -36,7 +36,6 @@ public class NettyRequest implements Request {
         headers.put(key, value);
     }
 
-
     @Override
     public String getHeader(String key) {
         return headers.get(key);
@@ -44,7 +43,7 @@ public class NettyRequest implements Request {
 
     @Override
     public Map<String, String> getHeaders() {
-        return null;
+        return headers;
     }
 
     @Override

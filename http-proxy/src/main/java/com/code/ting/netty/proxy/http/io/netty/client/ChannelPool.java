@@ -25,7 +25,7 @@ public class ChannelPool {
     private ChannelPool() {
         bootstrap
             .group(workers)
-            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000)
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 200)
             .channel(NioSocketChannel.class)
             .option(ChannelOption.TCP_NODELAY, true)
             .option(ChannelOption.SO_KEEPALIVE, true);
@@ -33,7 +33,10 @@ public class ChannelPool {
         poolMap = new AbstractChannelPoolMap<SocketAddress, SimpleChannelPool>() {
             @Override
             protected SimpleChannelPool newPool(SocketAddress socketAddress) {
-                return new FixedChannelPool(bootstrap.remoteAddress(socketAddress), new ClientChannelPoolHandler(), 1000);
+                return new FixedChannelPool(
+                    bootstrap.remoteAddress(socketAddress),
+                    new ClientChannelPoolHandler(),
+                    200);
             }
         };
     }

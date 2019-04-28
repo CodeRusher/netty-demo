@@ -11,7 +11,7 @@ import java.util.HashMap;
 import lombok.Getter;
 import lombok.Setter;
 
-public class NettyContext implements Context{
+public class NettyContext implements Context {
 
     @Getter
     @Setter
@@ -30,5 +30,12 @@ public class NettyContext implements Context{
     @Getter
     private HashMap<Class<Process>, Object> data = Maps.newHashMap();
 
+    @Getter
+    @Setter
+    Long id;
 
+    @Override
+    public void directResponse(byte[] data) {
+
+    }
 }

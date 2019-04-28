@@ -1,9 +1,10 @@
-package com.code.ting.netty.proxy.http.io.netty;
+package com.code.ting.netty.proxy.http.io.netty.proxy;
 
 
 import com.code.ting.netty.proxy.http.chain.ProcessorChain;
 import com.code.ting.netty.proxy.http.chain.context.Connector;
 import com.code.ting.netty.proxy.http.chain.context.Status;
+import com.code.ting.netty.proxy.http.io.netty.Consts;
 import com.code.ting.netty.proxy.http.io.netty.context.NettyContext;
 import com.code.ting.netty.proxy.http.io.netty.context.NettyResponse;
 import io.netty.buffer.ByteBuf;
@@ -15,55 +16,60 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
 
-    private ProcessorChain chain;
-    private HttpRequestParser httpParser = new HttpRequestParser();
-
-    public HttpProxyHandler(ProcessorChain chain) {
-        this.chain = chain;
-    }
-
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
 
-        // the fisrt msg
-        if (httpParser.getContext() == null) {
+        HttpRequestParser httpParser = ctx.channel().attr(Consts.REQUEST_PARSER_KEY).get();
+        // the fisrt msg of the Channel
+        if (httpParser == null) {
+            httpParser = new HttpRequestParser();
             httpParser.setContext(new NettyContext());
+            ctx.channel().attr(Consts.REQUEST_PARSER_KEY).set(httpParser);
         }
 
         // New http request coming
         if (httpParser.getContext().getStatus() == Status.RESPONSE_COMPLETED) {
             httpParser = new HttpRequestParser();
+            ctx.channel().attr(Consts.REQUEST_PARSER_KEY).set(httpParser);
             httpParser.setContext(new NettyContext());
         }
 
         NettyContext context = httpParser.getContext();
 
+        ByteBuf in = (ByteBuf) msg;
         /*---------------------  direct forward  ---------------------------*/
         if (httpParser.getContext().getStatus() == Status.REQUEST_HEADER_READ) {
             if (!httpParser.getRequest().isFull()) {
                 Connector connector = httpParser.getContext().getConnector();
                 if (connector.getClient() instanceof Channel) {
-                    // completed???
-                    ((Channel) (connector.getClient())).writeAndFlush(msg);
+                    int readableBytes = in.readableBytes();
+                    if (readableBytes + httpParser.getBodyReadedLength() >= httpParser.getContentLength()) {
+                        ((Channel) (connector.getClient())).writeAndFlush(in);
+                        httpParser.getContext().setStatus(Status.REQUEST_COMPLETED);
+                    } else {
+                        ((Channel) (connector.getClient())).write(in);
+                    }
 
+                    httpParser.setBodyReadedLength(httpParser.getBodyReadedLength() + readableBytes);
                 }
 
                 if (connector.getClient() instanceof java.net.Socket) {
                     // ...
+                    log.error(" client is Socket?");
                 }
+
+                return;
             }
         }
 
         /*---------------------  parse request  ---------------------------*/
-        ByteBuf in = (ByteBuf) msg;
         httpParser.parse(in);
 
         if ((context.getStatus() == Status.NEW) ||
-            (context.getRequest().isFull() && context.getStatus() != Status.REQUEST_COMPLETED)) {
+            (context.getRequest().isFull() && context.getStatus() == Status.REQUEST_HEADER_READ)) {
             in.release();
             return;
         }
-
 
         /*---------------------  chain  ---------------------------*/
         // disable until client is ready
@@ -72,21 +78,13 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
         }
         // gen NettyContext
         context.setRequest(httpParser.getRequest());
-        NettyResponse response = new NettyResponse();
-        context.setResponse(response);
+        context.setResponse(new NettyResponse());
         Connector connector = new Connector();
         connector.setProxy(ctx.channel());
         context.setConnector(connector);
 
         // fire chain
-        if (httpParser.getRequest().isFull()) {
-            // 同步调用处理链
-            chain.fireChain(context);
-        } else {
-            // 异步调用 处理链
-            chain.fireChain(context);
-        }
-
+        ctx.channel().attr(Consts.CHAIN_KEY).get().fireChain(context);
     }
 
     @Override

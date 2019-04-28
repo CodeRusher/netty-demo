@@ -1,13 +1,23 @@
 package com.code.ting.netty.proxy.http.chain.context;
 
 
+import java.util.Map;
+
 public interface Response {
+
+    String getVersion();
+
+    String getCode();
+
+    String getStatus();
 
     String getHeader(String key);
 
-    void writeBody(byte[] body);
+    Map<String, String> getHeaders();
 
     boolean isFull();
+
+    byte[] getResponseHeader();
 
     byte[] getBody();
 
