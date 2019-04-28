@@ -28,7 +28,7 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
             httpParser.setContext(new NettyContext());
         }
 
-        // new http request
+        // New http request coming
         if (httpParser.getContext().getStatus() == Status.RESPONSE_COMPLETED) {
             httpParser = new HttpRequestParser();
             httpParser.setContext(new NettyContext());
@@ -39,8 +39,6 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
         /*---------------------  direct forward  ---------------------------*/
         if (httpParser.getContext().getStatus() == Status.REQUEST_HEADER_READ) {
             if (!httpParser.getRequest().isFull()) {
-                log.info("httpParser complete&full msg coming...");
-            } else {
                 Connector connector = httpParser.getContext().getConnector();
                 if (connector.getClient() instanceof Channel) {
                     ((Channel) (connector.getClient())).writeAndFlush(msg);
@@ -52,7 +50,8 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
         ByteBuf in = (ByteBuf) msg;
         httpParser.parse(in);
 
-        if (context.getStatus() != Status.REQUEST_COMPLETED) {
+        if ((context.getStatus() == Status.NEW) ||
+            (context.getRequest().isFull() && context.getStatus() != Status.REQUEST_COMPLETED)) {
             in.release();
             return;
         }

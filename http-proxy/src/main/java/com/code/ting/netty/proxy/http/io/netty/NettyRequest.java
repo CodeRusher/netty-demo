@@ -23,7 +23,8 @@ public class NettyRequest implements Request {
     private String requestLine;
 
     @Setter
-    private ByteBuf body;
+    @Getter
+    private ByteBuf content;
 
     @Getter
     @Setter
@@ -54,7 +55,7 @@ public class NettyRequest implements Request {
 
     @Override
     public byte[] getBody() {
-        return new byte[0];
+        return content.array();
     }
 
 
