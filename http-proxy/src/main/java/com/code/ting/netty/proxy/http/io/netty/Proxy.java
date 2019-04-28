@@ -3,7 +3,7 @@ package com.code.ting.netty.proxy.http.io.netty;
 
 import com.code.ting.netty.proxy.http.chain.ProcessorChain;
 import com.code.ting.netty.proxy.http.chain.processor.AuthProcessor;
-import com.code.ting.netty.proxy.http.chain.processor.RouteProcessor;
+import com.code.ting.netty.proxy.http.chain.processor.NettyRouteProcessor;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -60,7 +60,7 @@ public class Proxy {
     private ProcessorChain buildChain(){
         ProcessorChain chain = new ProcessorChain();
         chain.addProcessor(new AuthProcessor());
-        chain.addProcessor(new RouteProcessor());
+        chain.addProcessor(new NettyRouteProcessor());
 
         return chain;
     }

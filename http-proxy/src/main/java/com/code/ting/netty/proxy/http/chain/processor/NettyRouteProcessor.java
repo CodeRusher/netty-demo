@@ -9,7 +9,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.Future;
 
-public class RouteProcessor implements Processor {
+public class NettyRouteProcessor implements Processor {
 
 
     @Override
