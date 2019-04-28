@@ -3,11 +3,13 @@ package com.code.ting.netty.proxy.http.chain.processor;
 
 import com.code.ting.netty.proxy.http.chain.Processor;
 import com.code.ting.netty.proxy.http.chain.context.Context;
+import com.code.ting.netty.proxy.http.io.netty.Consts;
 import com.code.ting.netty.proxy.http.io.netty.client.ChannelPool;
 import io.netty.channel.Channel;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.FutureListener;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.concurrent.Future;
 
 public class NettyRouteProcessor implements Processor {
 
@@ -22,7 +24,20 @@ public class NettyRouteProcessor implements Processor {
         SocketAddress address = new InetSocketAddress("", 8887);
 
         Future<Channel> f = ChannelPool.INSTANCE.acquireSync(address);
-        context.getConnector().setClient(f.get());
+
+        f.addListener((FutureListener<Channel>) future -> {
+            if (future.isSuccess()) {
+                Channel clientChannel = future.get();
+                context.getConnector().setClient(clientChannel);
+                clientChannel.attr(Consts.CONTEXT_KEY).set(context);
+                // write header
+
+                // wirte body
+
+            }
+        });
+
+        // blocked???
 
         return true;
     }

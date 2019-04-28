@@ -11,8 +11,8 @@ import io.netty.channel.pool.ChannelPoolMap;
 import io.netty.channel.pool.FixedChannelPool;
 import io.netty.channel.pool.SimpleChannelPool;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.concurrent.Future;
 import java.net.SocketAddress;
-import java.util.concurrent.Future;
 
 public class ChannelPool {
 
