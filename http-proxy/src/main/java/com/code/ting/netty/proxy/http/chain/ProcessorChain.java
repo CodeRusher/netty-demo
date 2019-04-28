@@ -1,7 +1,7 @@
 package com.code.ting.netty.proxy.http.chain;
 
 
-import com.code.ting.netty.proxy.http.io.netty.NettyContext;
+import com.code.ting.netty.proxy.http.io.netty.context.NettyContext;
 import java.util.LinkedList;
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,12 +50,12 @@ public class ProcessorChain {
             index--;
         }
 
-        if(throwed){
+        if (throwed) {
             handleThrowable(context);
         }
     }
 
-    public void handleThrowable(NettyContext context){
+    public void handleThrowable(NettyContext context) {
         context.getResponse().writeBody("error".getBytes());
     }
 

@@ -1,4 +1,4 @@
-package com.code.ting.netty.proxy.http.io.netty;
+package com.code.ting.netty.proxy.http.io.netty.context;
 
 
 import com.code.ting.netty.proxy.http.chain.context.Response;

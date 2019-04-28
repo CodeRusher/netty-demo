@@ -7,7 +7,7 @@ public interface Processor {
 
     void pre(Context context);
 
-    boolean process(Context context);
+    boolean process(Context context) throws Throwable;
 
     void after(Context context);
 

@@ -2,6 +2,8 @@ package com.code.ting.netty.proxy.http.io.netty;
 
 
 import com.code.ting.netty.proxy.http.chain.context.Status;
+import com.code.ting.netty.proxy.http.io.netty.context.NettyContext;
+import com.code.ting.netty.proxy.http.io.netty.context.NettyRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import lombok.Getter;

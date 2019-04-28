@@ -4,6 +4,8 @@ package com.code.ting.netty.proxy.http.io.netty;
 import com.code.ting.netty.proxy.http.chain.ProcessorChain;
 import com.code.ting.netty.proxy.http.chain.context.Connector;
 import com.code.ting.netty.proxy.http.chain.context.Status;
+import com.code.ting.netty.proxy.http.io.netty.context.NettyContext;
+import com.code.ting.netty.proxy.http.io.netty.context.NettyResponse;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
