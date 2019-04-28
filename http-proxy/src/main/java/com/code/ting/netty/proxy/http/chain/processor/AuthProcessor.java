@@ -1,4 +1,4 @@
-package com.code.ting.netty.proxy.http.chain.proccesser;
+package com.code.ting.netty.proxy.http.chain.processor;
 
 
 import com.code.ting.netty.proxy.http.chain.Processor;

@@ -2,8 +2,8 @@ package com.code.ting.netty.proxy.http.io.netty;
 
 
 import com.code.ting.netty.proxy.http.chain.ProcessorChain;
-import com.code.ting.netty.proxy.http.chain.proccesser.AuthProcessor;
-import com.code.ting.netty.proxy.http.chain.proccesser.RouteProcessor;
+import com.code.ting.netty.proxy.http.chain.processor.AuthProcessor;
+import com.code.ting.netty.proxy.http.chain.processor.RouteProcessor;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
