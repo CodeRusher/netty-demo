@@ -9,10 +9,6 @@ import lombok.Setter;
 
 public class NettyResponse implements Response {
 
-    @Getter
-    @Setter
-    Object sender;
-
     private String responseLine;
     private Map<String, String> headers = Maps.newHashMap();
 

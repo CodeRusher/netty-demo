@@ -11,6 +11,4 @@ public interface Response {
 
     byte[] getBody();
 
-    Object getSender();
-
 }

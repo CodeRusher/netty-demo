@@ -1,14 +1,14 @@
 package com.code.ting.netty.proxy.http.chain;
 
 
-import com.code.ting.netty.proxy.http.chain.context.Context;
+import com.code.ting.netty.proxy.http.io.netty.NettyContext;
 
 public interface Processor {
 
-    void pre(Context context);
+    void pre(NettyContext context);
 
-    boolean process(Context context);
+    boolean process(NettyContext context);
 
-    void after(Context context);
+    void after(NettyContext context);
 
 }

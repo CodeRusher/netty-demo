@@ -1,21 +1,17 @@
 package com.code.ting.netty.proxy.http.chain.context;
 
 
-import com.google.common.collect.Maps;
 import java.util.HashMap;
-import lombok.Getter;
-import lombok.Setter;
 
-public class Context {
+public interface Context {
+    Request getRequest();
 
-    @Getter
-    @Setter
-    private Request request;
-    @Getter
-    @Setter
-    private Response response;
+    Response getResponse();
 
-    @Getter
-    private HashMap<Class<Process>, Object> data = Maps.newHashMap();
+    Connector getConnector();
+
+    Status getStatus();
+
+    HashMap<Class<Process>, Object> getData();
 
 }

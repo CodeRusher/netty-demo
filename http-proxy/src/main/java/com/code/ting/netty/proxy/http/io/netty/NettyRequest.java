@@ -57,8 +57,5 @@ public class NettyRequest implements Request {
         return new byte[0];
     }
 
-    @Getter
-    @Setter
-    private Object receiver;
 
 }

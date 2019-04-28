@@ -1,7 +1,7 @@
 package com.code.ting.netty.proxy.http.chain;
 
 
-import com.code.ting.netty.proxy.http.chain.context.Context;
+import com.code.ting.netty.proxy.http.io.netty.NettyContext;
 import java.util.LinkedList;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,7 +15,7 @@ public class ProcessorChain {
         processors.add(processor);
     }
 
-    public void fireChain(Context context) {
+    public void fireChain(NettyContext context) {
 
         int index = 0;
         boolean throwed = false;
@@ -55,7 +55,7 @@ public class ProcessorChain {
         }
     }
 
-    public void handleThrowable(Context context){
+    public void handleThrowable(NettyContext context){
         context.getResponse().writeBody("error".getBytes());
     }
 

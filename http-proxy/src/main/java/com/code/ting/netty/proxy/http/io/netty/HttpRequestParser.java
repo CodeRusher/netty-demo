@@ -1,20 +1,23 @@
 package com.code.ting.netty.proxy.http.io.netty;
 
 
+import com.code.ting.netty.proxy.http.chain.context.Status;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 public class HttpRequestParser {
 
+
+
+    @Getter
+    @Setter
+    private NettyContext context;
+
     @Getter
     private NettyRequest request = new NettyRequest();
 
-    @Getter
-    private boolean headerReaded = false;
-
-    @Getter
-    private boolean complete;
 
     public void parse(ByteBuf in) {
         while (in.isReadable()) {
@@ -29,22 +32,21 @@ public class HttpRequestParser {
                 continue;
             }
 
-            if (!headerReaded) {
+            if (Status.NEW == context.getStatus()) {
                 String[] strs = line.split(":");
                 request.addHead(strs[0], strs[1]);
                 continue;
             }
 
             if (line.isEmpty()) {
-                headerReaded = true;
+                context.setStatus(Status.REQUEST_HEADER_READ);
             }
 
-            if (headerReaded) {
+            if (Status.REQUEST_HEADER_READ == context.getStatus()) {
                 if (Integer.parseInt(request.getHeader("")) <= 1024) {
                     request.setFull(true);
                 }
             }
-
 
         }
     }

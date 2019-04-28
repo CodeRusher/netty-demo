@@ -21,7 +21,5 @@ public interface Request {
 
     byte[] getBody();
 
-    void setReceiver(Object receiver);
 
-    Object getReceiver();
 }
