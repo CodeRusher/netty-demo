@@ -6,9 +6,6 @@ import com.code.ting.netty.proxy.http.chain.ProcessorChain;
 import com.code.ting.netty.proxy.http.chain.YieldResult;
 import com.code.ting.netty.proxy.http.chain.context.Context;
 import com.code.ting.netty.proxy.http.io.netty.client.ChannelPool;
-import com.code.ting.netty.proxy.http.io.netty.client.HttpResponseParser;
-import com.code.ting.netty.proxy.http.io.netty.context.NettyContext;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
@@ -36,20 +33,23 @@ public class NettyRouteProcessor implements Processor {
 
         clientChannelFuture.addListener((FutureListener<Channel>) future -> {
             if (future.isSuccess()) {
+
                 Channel clientChannel = future.get();
-                context.getConnector().setClient(clientChannel);
-                HttpResponseParser httpResponseParser = new HttpResponseParser();
-                httpResponseParser.setContext((NettyContext) context);
-                clientChannel.attr(Consts.RESPONSE_PARSER_KEY).set(httpResponseParser);
-                clientChannel.attr(Consts.CHAIN_KEY).set(chain);
-                // write header
-                clientChannel.write(Unpooled.wrappedBuffer(context.getRequest().getRequestHeader()));
-                // write body
+
                 if (context.getRequest().isFull()) {
-                    clientChannel.writeAndFlush(Unpooled.wrappedBuffer(context.getRequest().getBody()));
+
+                    clientChannel.attr(Consts.CHAIN_KEY).set(chain);
+                    clientChannel.attr(Consts.CONTEXT_KEY).set(context);
+                    clientChannel.writeAndFlush(context.getConnector().getProxyHttpRequest());
+
                 } else {
-                    Channel proxyChannel = (Channel) context.getConnector().getProxy();
-                    proxyChannel.config().setAutoRead(true);
+
+                    clientChannel.attr(Consts.CHAIN_KEY).set(chain);
+                    clientChannel.attr(Consts.CONTEXT_KEY).set(context);
+                    clientChannel.write(context.getConnector().getProxyHttpRequest());
+                    context.getConnector().setClientChannel(clientChannel);
+                    context.getConnector().getProxyChannel().config().setAutoRead(true);
+
                 }
             }
         });

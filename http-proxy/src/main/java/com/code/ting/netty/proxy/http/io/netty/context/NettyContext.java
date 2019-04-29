@@ -5,6 +5,7 @@ import com.code.ting.netty.proxy.http.chain.context.Connector;
 import com.code.ting.netty.proxy.http.chain.context.Context;
 import com.code.ting.netty.proxy.http.chain.context.Request;
 import com.code.ting.netty.proxy.http.chain.context.Response;
+import com.code.ting.netty.proxy.http.chain.context.Result;
 import com.code.ting.netty.proxy.http.chain.context.Status;
 import com.google.common.collect.Maps;
 import java.util.HashMap;
@@ -22,6 +23,9 @@ public class NettyContext implements Context {
     @Getter
     @Setter
     private Connector connector;
+    @Getter
+    @Setter
+    private Result result;
 
     @Getter
     @Setter
@@ -34,8 +38,4 @@ public class NettyContext implements Context {
     @Setter
     Long id;
 
-    @Override
-    public void directResponse(byte[] data) {
-
-    }
 }

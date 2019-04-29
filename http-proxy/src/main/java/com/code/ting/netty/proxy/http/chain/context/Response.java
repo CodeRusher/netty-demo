@@ -7,17 +7,15 @@ public interface Response {
 
     String getVersion();
 
-    String getCode();
+    Integer getCode();
 
-    String getStatus();
+    String getReasonPhrase();
 
     String getHeader(String key);
 
     Map<String, String> getHeaders();
 
     boolean isFull();
-
-    byte[] getResponseHeader();
 
     byte[] getBody();
 

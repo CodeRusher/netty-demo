@@ -2,64 +2,47 @@ package com.code.ting.netty.proxy.http.io.netty.context;
 
 
 import com.code.ting.netty.proxy.http.chain.context.Response;
-import com.google.common.collect.Maps;
-import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.http.FullHttpResponse;
 import java.util.Map;
-import lombok.Getter;
 import lombok.Setter;
 
 public class NettyResponse implements Response {
 
-    @Getter
     @Setter
-    private String version;
-    @Getter
-    @Setter
-    private String code;
-    @Getter
-    @Setter
-    private String status;
+    private FullHttpResponse fullHttpResponse;
 
-    @Getter
-    @Setter
-    private String responseLine;
+    @Override
+    public String getVersion() {
+        return fullHttpResponse.protocolVersion().text();
+    }
 
-    private Map<String, String> headers = Maps.newHashMap();
+    @Override
+    public Integer getCode() {
+        return fullHttpResponse.status().code();
+    }
 
-    public void addHead(String key, String value) {
-        headers.put(key, value);
+    @Override
+    public String getReasonPhrase() {
+        return fullHttpResponse.status().reasonPhrase();
     }
 
     @Override
     public String getHeader(String key) {
-        return headers.get(key);
+        return fullHttpResponse.headers().get(key);
     }
 
     @Override
     public Map<String, String> getHeaders() {
-        return headers;
+        return null;
     }
 
-    @Setter
-    @Getter
-    private ByteBuf content;
-
-    @Getter
-    @Setter
-    boolean full;
-
     @Override
-    public byte[] getResponseHeader() {
-        StringBuilder s = new StringBuilder(responseLine).append("\r\n");
-        headers.forEach((k, v) -> s.append(k).append(":").append(v).append("\r\n"));
-        s.append("\r\n");
-        return s.toString().getBytes();
+    public boolean isFull() {
+        return true;
     }
 
     @Override
     public byte[] getBody() {
-        return new byte[0];
+        return fullHttpResponse.content().array();
     }
-
-
 }

@@ -9,17 +9,12 @@ public interface Request {
 
     String getUrl();
 
-    String getVersion();
-
     String getHeader(String key);
 
     Map<String, String> getHeaders();
 
     boolean isFull();
 
-    byte[] getRequestHeader();
-
     byte[] getBody();
-
 
 }

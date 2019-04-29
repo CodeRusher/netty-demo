@@ -4,6 +4,7 @@ package com.code.ting.netty.proxy.http.io.netty;
 import com.code.ting.netty.proxy.http.chain.ProcessorChain;
 import com.code.ting.netty.proxy.http.chain.processor.AuthProcessor;
 import com.code.ting.netty.proxy.http.io.netty.proxy.HttpProxyHandler;
+import com.code.ting.netty.proxy.http.io.netty.proxy.HttpProxyMultiPartHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -12,6 +13,8 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpServerCodec;
 import java.net.InetSocketAddress;
 
 public class Proxy {
@@ -43,7 +46,10 @@ public class Proxy {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.attr(Consts.CHAIN_KEY).set(chain);
-                        ch.pipeline().addLast(new HttpProxyHandler());
+                        ch.pipeline().addLast("codec", new HttpServerCodec());
+                        ch.pipeline().addLast(Consts.HTTP_PROXY_MULTIPART_HANDLER_KEY, new HttpProxyMultiPartHandler());
+                        ch.pipeline().addLast(Consts.AGGREGATOR_HANDLER_KEY, new HttpObjectAggregator(10 * 1024 * 1024));
+                        ch.pipeline().addLast(Consts.HTTP_PROXY_HANDLER_KEY, new HttpProxyHandler());
                     }
                 });
 

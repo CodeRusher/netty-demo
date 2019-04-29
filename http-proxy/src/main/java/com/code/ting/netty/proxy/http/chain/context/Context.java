@@ -11,14 +11,16 @@ public interface Context {
 
     Connector getConnector();
 
+    void setStatus(Status status);
+
     Status getStatus();
 
     HashMap<Class<Process>, Object> getData();
 
-    void directResponse(byte[] data);
-
     Long getId();
 
     void setId(Long id);
+
+    void setResult(Result result);
 
 }

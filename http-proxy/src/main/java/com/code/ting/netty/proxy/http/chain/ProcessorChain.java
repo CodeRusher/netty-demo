@@ -1,7 +1,9 @@
 package com.code.ting.netty.proxy.http.chain;
 
 
+import com.code.ting.netty.proxy.http.chain.context.Connector;
 import com.code.ting.netty.proxy.http.chain.context.Context;
+import com.code.ting.netty.proxy.http.chain.context.Status;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -50,6 +52,10 @@ public class ProcessorChain {
                         if (yieldResult.yield) {
                             return;
                         }
+                        if (!yieldResult.success) {
+                            holder.getContext().setStatus(Status.CANCEL);
+                            break;
+                        }
                     } catch (Throwable t) {
                         log.error("error in chain :{}", t.getMessage(), t);
                         holder.step = Step.AFTER;
@@ -75,11 +81,22 @@ public class ProcessorChain {
             }
         }
 
-        if (holder.hasThrowable) {
-            handleThrowable(context);
+        try {
+            if (holder.getContext().getStatus() == Status.CANCEL) {
+                holder.getContext().getConnector().getProxyChannel().writeAndFlush("cancel");
+                return;
+            }
+            if (holder.hasThrowable) {
+                context.getConnector().getProxyChannel().writeAndFlush("error".getBytes());
+                return;
+            }
+            Connector connector = context.getConnector();
+            connector.getProxyChannel().writeAndFlush(connector.getClientHttpResponse());
+
+        } finally {
+            contexts.remove(context.getId());
         }
 
-        contexts.remove(context.getId());
     }
 
 
@@ -93,10 +110,6 @@ public class ProcessorChain {
             }
         }
         return id;
-    }
-
-    public void handleThrowable(Context context) {
-        context.directResponse("error".getBytes());
     }
 
 
