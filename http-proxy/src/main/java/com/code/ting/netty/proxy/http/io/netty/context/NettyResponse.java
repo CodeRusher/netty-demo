@@ -50,7 +50,10 @@ public class NettyResponse implements Response {
 
     @Override
     public byte[] getResponseHeader() {
-        return new byte[0];
+        StringBuilder s = new StringBuilder(responseLine).append("\r\n");
+        headers.forEach((k, v) -> s.append(k).append(":").append(v).append("\r\n"));
+        s.append("\r\n");
+        return s.toString().getBytes();
     }
 
     @Override

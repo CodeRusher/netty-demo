@@ -6,6 +6,7 @@ import com.code.ting.netty.proxy.http.chain.context.Status;
 import com.code.ting.netty.proxy.http.io.netty.Consts;
 import com.code.ting.netty.proxy.http.io.netty.context.NettyContext;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -29,8 +30,8 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                     int readableBytes = in.readableBytes();
                     if (readableBytes + httpParser.getBodyReadedLength() >= httpParser.getContentLength()) {
                         ((Channel) (connector.getProxy())).writeAndFlush(in);
+
                         context.setStatus(Status.RESPONSE_COMPLETED);
-                        // todo:
                         ctx.channel().attr(Consts.CHAIN_KEY).get().fireChain(context);
                     } else {
                         ((Channel) (connector.getProxy())).write(in);
@@ -52,9 +53,17 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
         httpParser.parse(in);
 
         if ((context.getStatus() == Status.REQUEST_COMPLETED) ||
-            (context.getRequest().isFull() && context.getStatus() == Status.RESPONSE_HEADER_READ)) {
+            (context.getResponse().isFull() && context.getStatus() == Status.RESPONSE_HEADER_READ)) {
             in.release();
             return;
+        }
+
+        if (context.getStatus() == Status.RESPONSE_COMPLETED) {
+            ctx.channel().write(Unpooled.wrappedBuffer(context.getResponse().getResponseHeader()));
+            if (context.getResponse().isFull()) {
+                ctx.channel().write(Unpooled.wrappedBuffer(context.getResponse().getBody()));
+                ctx.channel().attr(Consts.CHAIN_KEY).get().fireChain(context);
+            }
         }
 
     }

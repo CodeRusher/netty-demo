@@ -21,7 +21,7 @@ public class HttpRequestParser {
     private NettyRequest request = new NettyRequest();
 
     @Getter
-    private int contentLength;
+    private int contentLength = 0;
 
     @Getter
     @Setter
@@ -60,7 +60,12 @@ public class HttpRequestParser {
             // 分隔行
             if (line.isEmpty()) {
                 context.setStatus(Status.REQUEST_HEADER_READ);
-                contentLength = Integer.parseInt(request.getHeader(""));
+                if (!StringUtils.isBlank(request.getHeader("Content-Length"))) {
+                    contentLength = Integer.parseInt(request.getHeader("Content-Length"));
+                }
+                if (contentLength == 0) {
+
+                }
                 if (contentLength <= 1024) {
                     request.setFull(true);
                     request.setContent(Unpooled.buffer(contentLength));

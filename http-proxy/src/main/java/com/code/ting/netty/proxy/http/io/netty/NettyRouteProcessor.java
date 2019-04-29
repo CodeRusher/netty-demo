@@ -30,7 +30,7 @@ public class NettyRouteProcessor implements Processor {
 
     @Override
     public YieldResult process(Context context) throws Throwable {
-        SocketAddress address = new InetSocketAddress("", 8887);
+        SocketAddress address = new InetSocketAddress("127.0.0.1", 8888);
 
         Future<Channel> clientChannelFuture = ChannelPool.INSTANCE.acquireSync(address);
 

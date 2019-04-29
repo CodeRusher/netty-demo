@@ -48,7 +48,10 @@ public class NettyRequest implements Request {
 
     @Override
     public byte[] getRequestHeader() {
-        return new byte[0];
+        StringBuilder s = new StringBuilder(requestLine).append("\r\n");
+        headers.forEach((k, v) -> s.append(k).append(":").append(v).append("\r\n"));
+        s.append("\r\n");
+        return s.toString().getBytes();
     }
 
 
