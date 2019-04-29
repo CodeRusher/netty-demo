@@ -2,6 +2,7 @@ package com.code.ting.netty.proxy.http.chain.context;
 
 
 import io.netty.channel.Channel;
+import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import lombok.Getter;
@@ -23,6 +24,6 @@ public class Connector {
 
     @Getter
     @Setter
-    private HttpResponse clientHttpResponse;
+    private FullHttpResponse clientHttpResponse;
 
 }

@@ -6,7 +6,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.pool.ChannelPoolHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
-public class ClientChannelPoolHandler implements ChannelPoolHandler {
+public class MultipartChannelPoolHandler  implements ChannelPoolHandler {
 
     @Override
     public void channelReleased(Channel ch) throws Exception {

@@ -1,13 +1,20 @@
 package com.code.ting.netty.proxy.http.chain.context;
 
 
+import com.code.ting.netty.proxy.http.chain.FilterChain;
 import java.util.HashMap;
 
 public interface Context {
 
+    void setChain(FilterChain chain);
+
+    FilterChain getChain();
+
     Request getRequest();
 
     Response getResponse();
+
+    void setResult(Result result);
 
     Connector getConnector();
 
@@ -19,8 +26,7 @@ public interface Context {
 
     Long getId();
 
-    void setId(Long id);
 
-    void setResult(Result result);
+
 
 }

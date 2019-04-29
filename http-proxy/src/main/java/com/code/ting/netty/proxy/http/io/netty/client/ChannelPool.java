@@ -18,7 +18,8 @@ public class ChannelPool {
 
     private final Bootstrap bootstrap = new Bootstrap();
     private final EventLoopGroup workers = new NioEventLoopGroup(4);
-    private ChannelPoolMap<SocketAddress, SimpleChannelPool> poolMap;
+    private ChannelPoolMap<SocketAddress, SimpleChannelPool> defaultPoolMap;
+    private ChannelPoolMap<SocketAddress, SimpleChannelPool> multiPartPoolMap;
 
     public static final ChannelPool INSTANCE = new ChannelPool();
 
@@ -30,19 +31,33 @@ public class ChannelPool {
             .option(ChannelOption.TCP_NODELAY, true)
             .option(ChannelOption.SO_KEEPALIVE, true);
 
-        poolMap = new AbstractChannelPoolMap<SocketAddress, SimpleChannelPool>() {
+        defaultPoolMap = new AbstractChannelPoolMap<SocketAddress, SimpleChannelPool>() {
             @Override
             protected SimpleChannelPool newPool(SocketAddress socketAddress) {
                 return new FixedChannelPool(
                     bootstrap.remoteAddress(socketAddress),
-                    new ClientChannelPoolHandler(),
+                    new DefaultChannelPoolHandler(),
+                    200);
+            }
+        };
+        multiPartPoolMap = new AbstractChannelPoolMap<SocketAddress, SimpleChannelPool>() {
+            @Override
+            protected SimpleChannelPool newPool(SocketAddress socketAddress) {
+                return new FixedChannelPool(
+                    bootstrap.remoteAddress(socketAddress),
+                    new DefaultChannelPoolHandler(),
                     200);
             }
         };
     }
 
     public Future<Channel> acquireSync(SocketAddress address) throws InterruptedException {
-        final SimpleChannelPool pool = poolMap.get(address);
+        final SimpleChannelPool pool = defaultPoolMap.get(address);
+        return pool.acquire().sync();
+    }
+
+    public Future<Channel> acquireMultiPartChannelSync(SocketAddress address) throws InterruptedException {
+        final SimpleChannelPool pool = multiPartPoolMap.get(address);
         return pool.acquire().sync();
     }
 

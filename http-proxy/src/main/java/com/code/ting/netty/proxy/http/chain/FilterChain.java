@@ -4,6 +4,7 @@ package com.code.ting.netty.proxy.http.chain;
 import com.code.ting.netty.proxy.http.chain.context.Connector;
 import com.code.ting.netty.proxy.http.chain.context.Context;
 import com.code.ting.netty.proxy.http.chain.context.Status;
+import io.netty.handler.codec.http.FullHttpResponse;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -11,25 +12,34 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ProcessorChain {
+public class FilterChain {
 
     private ConcurrentSkipListMap<Long, ContextHolder> contexts = new ConcurrentSkipListMap<>();
-    private final AtomicLong ids = new AtomicLong();
 
-    private LinkedList<Processor> processors = new LinkedList<>();
+    private LinkedList<Filter> filters = new LinkedList<>();
 
 
-    public void addProcessor(Processor processor) {
-        processors.add(processor);
+
+
+    private Router router;
+
+    public FilterChain(Router router) {
+        this.router = router;
+    }
+
+    public void addFilter(Filter filter) {
+        filters.add(filter);
     }
 
     public void fireChain(Context context) {
 
         ContextHolder holder;
-        if (context.getId() == null) {
-            context.setId(genId());
+        if (context.getStatus() == Status.NEW) {
+            context.setStatus(Status.IN_CHAIN);
+            context.setChain(this);
             holder = new ContextHolder();
             holder.setContext(context);
+            contexts.put(context.getId(), holder);
         } else {
             holder = contexts.get(context.getId());
         }
@@ -38,39 +48,54 @@ public class ProcessorChain {
             throw new IllegalStateException(" error in chain, ContextHolder has been removed ,context:");
         }
 
-        if (holder.step == Step.PRE || holder.step == Step.PROCESS) {
-            while (holder.index < processors.size()) {
-                if (holder.step == Step.PROCESS) {
-                    holder.index++;
-                    Processor p = processors.get(holder.index);
-                    try {
-                        holder.step = Step.PRE;
-                        p.pre(holder.context);
-                        holder.step = Step.PROCESS;
-                        YieldResult yieldResult = p.process(context);
-                        // yield for chain
-                        if (yieldResult.yield) {
-                            return;
-                        }
-                        if (!yieldResult.success) {
-                            holder.getContext().setStatus(Status.CANCEL);
-                            break;
-                        }
-                    } catch (Throwable t) {
-                        log.error("error in chain :{}", t.getMessage(), t);
-                        holder.step = Step.AFTER;
-                        holder.hasThrowable = true;
+        if (holder.step == Step.PRE) {
+            while (holder.index + 1 < filters.size()) {
+                holder.index++;
+                Filter filter = filters.get(holder.index);
+                try {
+                    holder.step = Step.PRE;
+                    YieldResult yieldResult = filter.pre(holder.context);
+                    // yield for chain
+                    if (yieldResult.yield) {
+                        return;
+                    }
+                    if (!yieldResult.success) {
+                        holder.getContext().setStatus(Status.CANCEL);
                         break;
                     }
+                } catch (Throwable t) {
+                    log.error("error in chain :{}", t.getMessage(), t);
+                    holder.step = Step.AFTER;
+                    holder.hasThrowable = true;
+                    break;
                 }
             }//end while
+
+            holder.setStep(Step.ROUTE);
+        }
+        if (holder.step == Step.ROUTE) {
+            holder.setStep(Step.AFTER);
+            try {
+
+                YieldResult yieldResult = router.route(holder.getContext());
+                // yield for chain
+                if (yieldResult.yield) {
+                    return;
+                }
+                if (!yieldResult.success) {
+                    holder.getContext().setStatus(Status.CANCEL);
+                }
+            } catch (Throwable t) {
+                log.error("error in router :{}", t.getMessage(), t);
+                holder.hasThrowable = true;
+            }
         }
 
         if (holder.step == Step.AFTER) {
-            // Processor.after must invoke
+            // Filter.after must invoke
             while (holder.index >= 0) {
                 try {
-                    Processor p = processors.get(holder.index);
+                    Filter p = filters.get(holder.index);
                     p.after(context);
                 } catch (Throwable t) {
                     log.error("error in chain.after :{}", t.getMessage(), t);
@@ -81,6 +106,7 @@ public class ProcessorChain {
             }
         }
 
+        // render response
         try {
             if (holder.getContext().getStatus() == Status.CANCEL) {
                 holder.getContext().getConnector().getProxyChannel().writeAndFlush("cancel");
@@ -100,24 +126,12 @@ public class ProcessorChain {
     }
 
 
-    private Long genId() {
-        long id = ids.decrementAndGet();
-        if (id > Long.MAX_VALUE - 1000000) {
-            synchronized (ids) {
-                if (ids.get() >= id) {
-                    ids.set(0);
-                }
-            }
-        }
-        return id;
-    }
-
 
     @Data
     private static class ContextHolder {
 
         Context context;
-        int index = 0;
+        int index = -1;
         Step step = Step.PRE;
         boolean hasThrowable = false;
     }

@@ -5,29 +5,32 @@ import com.code.ting.netty.proxy.http.chain.context.Connector;
 import com.code.ting.netty.proxy.http.chain.context.Context;
 import com.code.ting.netty.proxy.http.chain.context.Status;
 import com.code.ting.netty.proxy.http.io.netty.Consts;
-import com.code.ting.netty.proxy.http.io.netty.context.NettyContext;
-import com.code.ting.netty.proxy.http.io.netty.context.NettyRequest;
-import com.code.ting.netty.proxy.http.io.netty.context.NettyResponse;
+import com.code.ting.netty.proxy.http.io.netty.context.DefaultContext;
+import com.code.ting.netty.proxy.http.io.netty.context.DefaultRequest;
+import com.code.ting.netty.proxy.http.io.netty.context.DefaultResponse;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
+import org.apache.commons.lang3.StringUtils;
 
 public class HttpProxyMultiPartHandler extends SimpleChannelInboundHandler<HttpObject> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
+        // ctx.fireChannelRead()
         if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
-            if (httpRequest.headers().get("Content-Type").equalsIgnoreCase("multipart")) {
+            String contentType = httpRequest.headers().get("Content-Type");
+            if (StringUtils.isNoneBlank(contentType) &&  contentType.equalsIgnoreCase("multipart")) {
                 ctx.pipeline().remove(Consts.AGGREGATOR_HANDLER_KEY);
                 ctx.pipeline().remove(Consts.HTTP_PROXY_HANDLER_KEY);
 
-                NettyContext context = new NettyContext();
+                DefaultContext context = new DefaultContext();
 
-                NettyRequest request = new NettyRequest();
+                DefaultRequest request = new DefaultRequest();
                 request.setHttpRequest(httpRequest);
                 context.setRequest(request);
 
@@ -36,7 +39,7 @@ public class HttpProxyMultiPartHandler extends SimpleChannelInboundHandler<HttpO
                 connector.setProxyHttpRequest(httpRequest);
                 context.setConnector(connector);
 
-                context.setResponse(new NettyResponse());
+                context.setResponse(new DefaultResponse());
 
                 ctx.channel().config().setAutoRead(false);
                 ctx.channel().attr(Consts.CONTEXT_KEY).set(context);

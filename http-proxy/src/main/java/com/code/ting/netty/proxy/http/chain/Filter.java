@@ -3,11 +3,9 @@ package com.code.ting.netty.proxy.http.chain;
 
 import com.code.ting.netty.proxy.http.chain.context.Context;
 
-public interface Processor {
+public interface Filter {
 
-    void pre(Context context);
-
-    YieldResult process(Context context) throws Throwable;
+    YieldResult pre(Context context) throws Throwable;
 
     void after(Context context);
 

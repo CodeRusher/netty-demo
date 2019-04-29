@@ -7,7 +7,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import java.util.Map;
 import lombok.Setter;
 
-public class NettyRequest implements Request {
+public class DefaultRequest implements Request {
 
     @Setter
     private HttpRequest httpRequest;

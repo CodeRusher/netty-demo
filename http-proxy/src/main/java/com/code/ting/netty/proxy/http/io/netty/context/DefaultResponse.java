@@ -6,7 +6,7 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import java.util.Map;
 import lombok.Setter;
 
-public class NettyResponse implements Response {
+public class DefaultResponse implements Response {
 
     @Setter
     private FullHttpResponse fullHttpResponse;
@@ -24,6 +24,11 @@ public class NettyResponse implements Response {
     @Override
     public String getReasonPhrase() {
         return fullHttpResponse.status().reasonPhrase();
+    }
+
+    @Override
+    public void addHeader(String key, String value) {
+        fullHttpResponse.headers().set(key,value);
     }
 
     @Override

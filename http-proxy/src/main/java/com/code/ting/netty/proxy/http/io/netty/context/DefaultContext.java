@@ -1,8 +1,10 @@
 package com.code.ting.netty.proxy.http.io.netty.context;
 
 
+import com.code.ting.netty.proxy.http.chain.FilterChain;
 import com.code.ting.netty.proxy.http.chain.context.Connector;
 import com.code.ting.netty.proxy.http.chain.context.Context;
+import com.code.ting.netty.proxy.http.chain.context.ContextIdGenerator;
 import com.code.ting.netty.proxy.http.chain.context.Request;
 import com.code.ting.netty.proxy.http.chain.context.Response;
 import com.code.ting.netty.proxy.http.chain.context.Result;
@@ -12,7 +14,8 @@ import java.util.HashMap;
 import lombok.Getter;
 import lombok.Setter;
 
-public class NettyContext implements Context {
+public class DefaultContext implements Context {
+
 
     @Getter
     @Setter
@@ -36,6 +39,9 @@ public class NettyContext implements Context {
 
     @Getter
     @Setter
-    Long id;
+    FilterChain chain;
+
+    @Getter
+    Long id = ContextIdGenerator.genId();
 
 }

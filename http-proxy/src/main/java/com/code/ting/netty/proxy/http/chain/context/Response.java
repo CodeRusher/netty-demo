@@ -11,6 +11,8 @@ public interface Response {
 
     String getReasonPhrase();
 
+    void addHeader(String key, String value);
+
     String getHeader(String key);
 
     Map<String, String> getHeaders();

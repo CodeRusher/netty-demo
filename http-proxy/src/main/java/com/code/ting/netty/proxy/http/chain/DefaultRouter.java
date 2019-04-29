@@ -1,10 +1,8 @@
-package com.code.ting.netty.proxy.http.io.netty;
+package com.code.ting.netty.proxy.http.chain;
 
 
-import com.code.ting.netty.proxy.http.chain.Processor;
-import com.code.ting.netty.proxy.http.chain.ProcessorChain;
-import com.code.ting.netty.proxy.http.chain.YieldResult;
 import com.code.ting.netty.proxy.http.chain.context.Context;
+import com.code.ting.netty.proxy.http.io.netty.Consts;
 import com.code.ting.netty.proxy.http.io.netty.client.ChannelPool;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Future;
@@ -12,39 +10,28 @@ import io.netty.util.concurrent.FutureListener;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
-public class NettyRouteProcessor implements Processor {
-
-    private ProcessorChain chain;
-
-    public NettyRouteProcessor(ProcessorChain chain) {
-        this.chain = chain;
-    }
+public class DefaultRouter implements Router{
 
     @Override
-    public void pre(Context context) {
-
-    }
-
-    @Override
-    public YieldResult process(Context context) throws Throwable {
-        SocketAddress address = new InetSocketAddress("127.0.0.1", 8888);
+    public YieldResult route(Context context) throws Throwable {
+        SocketAddress address = new InetSocketAddress("127.0.0.1", 8080);
 
         Future<Channel> clientChannelFuture = ChannelPool.INSTANCE.acquireSync(address);
 
         clientChannelFuture.addListener((FutureListener<Channel>) future -> {
             if (future.isSuccess()) {
 
-                Channel clientChannel = future.get();
+                Channel clientChannel = future.getNow();
 
                 if (context.getRequest().isFull()) {
 
-                    clientChannel.attr(Consts.CHAIN_KEY).set(chain);
+                    clientChannel.attr(Consts.CHAIN_KEY).set(context.getChain());
                     clientChannel.attr(Consts.CONTEXT_KEY).set(context);
                     clientChannel.writeAndFlush(context.getConnector().getProxyHttpRequest());
 
                 } else {
 
-                    clientChannel.attr(Consts.CHAIN_KEY).set(chain);
+                    clientChannel.attr(Consts.CHAIN_KEY).set(context.getChain());
                     clientChannel.attr(Consts.CONTEXT_KEY).set(context);
                     clientChannel.write(context.getConnector().getProxyHttpRequest());
                     context.getConnector().setClientChannel(clientChannel);
@@ -54,13 +41,5 @@ public class NettyRouteProcessor implements Processor {
             }
         });
 
-        return YieldResult.YIELD;
-    }
-
-    @Override
-    public void after(Context context) {
-
-    }
-
-
+        return YieldResult.YIELD;    }
 }

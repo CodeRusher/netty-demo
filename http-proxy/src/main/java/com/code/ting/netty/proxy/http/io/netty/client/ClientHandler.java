@@ -1,11 +1,11 @@
 package com.code.ting.netty.proxy.http.io.netty.client;
 
 
-import com.code.ting.netty.proxy.http.chain.ProcessorChain;
+import com.code.ting.netty.proxy.http.chain.FilterChain;
 import com.code.ting.netty.proxy.http.chain.context.Context;
 import com.code.ting.netty.proxy.http.io.netty.Consts;
-import com.code.ting.netty.proxy.http.io.netty.context.NettyContext;
-import com.code.ting.netty.proxy.http.io.netty.context.NettyResponse;
+import com.code.ting.netty.proxy.http.io.netty.context.DefaultContext;
+import com.code.ting.netty.proxy.http.io.netty.context.DefaultResponse;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpResponse;
@@ -18,11 +18,13 @@ public class ClientHandler extends SimpleChannelInboundHandler<FullHttpResponse>
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse msg) throws Exception {
         Context context = ctx.channel().attr(Consts.CONTEXT_KEY).get();
 
-        NettyResponse response = new NettyResponse();
-        ((NettyContext) context).setResponse(response);
+        DefaultResponse response = new DefaultResponse();
+        response.setFullHttpResponse(msg);
+        ((DefaultContext) context).setResponse(response);
         context.getConnector().setClientHttpResponse(msg);
 
-        ProcessorChain chain = ctx.channel().attr(Consts.CHAIN_KEY).get();
+        FilterChain chain = ctx.channel().attr(Consts.CHAIN_KEY).get();
+        msg.retain();
         chain.fireChain(context);
     }
 }

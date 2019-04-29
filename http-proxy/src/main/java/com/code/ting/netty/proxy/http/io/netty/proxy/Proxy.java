@@ -1,10 +1,8 @@
-package com.code.ting.netty.proxy.http.io.netty;
+package com.code.ting.netty.proxy.http.io.netty.proxy;
 
 
-import com.code.ting.netty.proxy.http.chain.ProcessorChain;
-import com.code.ting.netty.proxy.http.chain.processor.AuthProcessor;
-import com.code.ting.netty.proxy.http.io.netty.proxy.HttpProxyHandler;
-import com.code.ting.netty.proxy.http.io.netty.proxy.HttpProxyMultiPartHandler;
+import com.code.ting.netty.proxy.http.chain.FilterChain;
+import com.code.ting.netty.proxy.http.io.netty.Consts;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -16,8 +14,14 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import java.net.InetSocketAddress;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class Proxy {
+
+    @Setter
+    private FilterChain chain;
 
     private int port = 8081;
 
@@ -30,7 +34,6 @@ public class Proxy {
 
 
     public void start() throws InterruptedException {
-        ProcessorChain chain = buildChain();
 
         EventLoopGroup boss = new NioEventLoopGroup(1);
         EventLoopGroup worker = new NioEventLoopGroup();
@@ -47,14 +50,14 @@ public class Proxy {
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.attr(Consts.CHAIN_KEY).set(chain);
                         ch.pipeline().addLast("codec", new HttpServerCodec());
-                        ch.pipeline().addLast(Consts.HTTP_PROXY_MULTIPART_HANDLER_KEY, new HttpProxyMultiPartHandler());
+//                        ch.pipeline().addLast(Consts.HTTP_PROXY_MULTIPART_HANDLER_KEY, new HttpProxyMultiPartHandler());
                         ch.pipeline().addLast(Consts.AGGREGATOR_HANDLER_KEY, new HttpObjectAggregator(10 * 1024 * 1024));
                         ch.pipeline().addLast(Consts.HTTP_PROXY_HANDLER_KEY, new HttpProxyHandler());
                     }
                 });
 
             ChannelFuture f = bootstrap.bind().sync();
-            System.out.println("started...");
+            log.info("started...");
             f.channel().closeFuture().sync();
 
         } finally {
@@ -63,17 +66,8 @@ public class Proxy {
         }
     }
 
-    private ProcessorChain buildChain() {
-        ProcessorChain chain = new ProcessorChain();
-        chain.addProcessor(new AuthProcessor());
-        chain.addProcessor(new NettyRouteProcessor(chain));
 
-        return chain;
-    }
 
-    public static void main(String[] args) throws InterruptedException {
-        Proxy proxy = new Proxy();
-        proxy.start();
-    }
+
 
 }
