@@ -6,8 +6,6 @@ import java.util.HashMap;
 
 public interface Context {
 
-    void setChain(FilterChain chain);
-
     FilterChain getChain();
 
     Request getRequest();
@@ -25,8 +23,6 @@ public interface Context {
     HashMap<Class<Process>, Object> getData();
 
     Long getId();
-
-
 
 
 }

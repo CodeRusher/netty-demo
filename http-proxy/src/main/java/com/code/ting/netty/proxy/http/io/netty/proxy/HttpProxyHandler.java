@@ -15,7 +15,8 @@ public class HttpProxyHandler extends SimpleChannelInboundHandler<FullHttpReques
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
-        DefaultContext context = new DefaultContext();
+        FilterChain chain = ctx.channel().attr(Consts.CHAIN_KEY).get();
+        DefaultContext context = new DefaultContext(chain);
 
         DefaultRequest defaultRequest = new DefaultRequest();
         defaultRequest.setHttpRequest(msg);
@@ -29,6 +30,6 @@ public class HttpProxyHandler extends SimpleChannelInboundHandler<FullHttpReques
         context.setResponse(new DefaultResponse());
 
         msg.retain();
-        ctx.channel().attr(Consts.CHAIN_KEY).get().fireChain(context);
+        chain.fireChain(context);
     }
 }

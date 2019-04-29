@@ -36,7 +36,6 @@ public class FilterChain {
         ContextHolder holder;
         if (context.getStatus() == Status.NEW) {
             context.setStatus(Status.IN_CHAIN);
-            context.setChain(this);
             holder = new ContextHolder();
             holder.setContext(context);
             contexts.put(context.getId(), holder);

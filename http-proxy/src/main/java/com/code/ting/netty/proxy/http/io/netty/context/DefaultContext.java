@@ -16,6 +16,9 @@ import lombok.Setter;
 
 public class DefaultContext implements Context {
 
+    public DefaultContext(FilterChain chain){
+        this.chain = chain;
+    }
 
     @Getter
     @Setter
@@ -38,7 +41,6 @@ public class DefaultContext implements Context {
     private HashMap<Class<Process>, Object> data = Maps.newHashMap();
 
     @Getter
-    @Setter
     FilterChain chain;
 
     @Getter
