@@ -2,12 +2,10 @@ package com.code.ting.netty.proxy.http.chain;
 
 
 import com.code.ting.netty.proxy.http.chain.context.Connector;
-import com.code.ting.netty.proxy.http.chain.context.Context;
+import com.code.ting.netty.proxy.http.chain.context.RouteContext;
 import com.code.ting.netty.proxy.http.chain.context.Status;
-import io.netty.handler.codec.http.FullHttpResponse;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.atomic.AtomicLong;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,8 +15,6 @@ public class FilterChain {
     private ConcurrentSkipListMap<Long, ContextHolder> contexts = new ConcurrentSkipListMap<>();
 
     private LinkedList<Filter> filters = new LinkedList<>();
-
-
 
 
     private Router router;
@@ -31,7 +27,17 @@ public class FilterChain {
         filters.add(filter);
     }
 
-    public void fireChain(Context context) {
+
+    public void fireChain(Long id) {
+        ContextHolder holder = contexts.get(id);
+        if (holder == null) {
+            throw new IllegalStateException(" error in chain, ContextHolder has been removed ,context:");
+        }
+
+        fireChain(holder);
+    }
+
+    public void fireChain(RouteContext context) {
 
         ContextHolder holder;
         if (context.getStatus() == Status.NEW) {
@@ -47,6 +53,10 @@ public class FilterChain {
             throw new IllegalStateException(" error in chain, ContextHolder has been removed ,context:");
         }
 
+    }
+
+    private void fireChain(ContextHolder holder) {
+        RouteContext context = holder.getContext();
         if (holder.step == Step.PRE) {
             while (holder.index + 1 < filters.size()) {
                 holder.index++;
@@ -124,11 +134,10 @@ public class FilterChain {
     }
 
 
-
     @Data
     private static class ContextHolder {
 
-        Context context;
+        RouteContext context;
         int index = -1;
         Step step = Step.PRE;
         boolean hasThrowable = false;

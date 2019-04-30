@@ -1,7 +1,7 @@
 package com.code.ting.netty.proxy.http.chain;
 
 
-import com.code.ting.netty.proxy.http.chain.context.Context;
+import com.code.ting.netty.proxy.http.chain.context.RouteContext;
 import com.code.ting.netty.proxy.http.io.netty.Consts;
 import com.code.ting.netty.proxy.http.io.netty.client.ChannelPool;
 import io.netty.channel.Channel;
@@ -13,7 +13,7 @@ import java.net.SocketAddress;
 public class DefaultRouter implements Router{
 
     @Override
-    public YieldResult route(Context context) throws Throwable {
+    public YieldResult route(RouteContext context) throws Throwable {
         String host = "localhost";
         int port = 8888;
         context.getRequest().setHeader("host",host);

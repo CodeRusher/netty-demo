@@ -4,6 +4,7 @@ package com.code.ting.netty.proxy.http.io.netty.proxy;
 import com.code.ting.netty.proxy.http.chain.FilterChain;
 import com.code.ting.netty.proxy.http.chain.context.Connector;
 import com.code.ting.netty.proxy.http.chain.context.Context;
+import com.code.ting.netty.proxy.http.chain.context.RouteContext;
 import com.code.ting.netty.proxy.http.chain.context.Status;
 import com.code.ting.netty.proxy.http.io.netty.Consts;
 import com.code.ting.netty.proxy.http.io.netty.context.DefaultContext;
@@ -60,7 +61,7 @@ public class HttpProxyMultiPartHandler extends SimpleChannelInboundHandler<HttpO
 
         if (msg instanceof HttpContent) {
             if (ctx.channel().attr(Consts.CONTEXT_KEY).get() != null) {
-                Context context = ctx.channel().attr(Consts.CONTEXT_KEY).get();
+                RouteContext context = ctx.channel().attr(Consts.CONTEXT_KEY).get();
                 if (context.getStatus() == Status.CANCEL) {
                     ReferenceCountUtil.release(msg);
                     return;
