@@ -1,6 +1,7 @@
-package com.code.ting.netty.proxy.http.chain;
+package com.code.ting.netty.proxy.http.chain.route;
 
 
+import com.code.ting.netty.proxy.http.chain.YieldResult;
 import com.code.ting.netty.proxy.http.chain.context.RouteContext;
 import com.code.ting.netty.proxy.http.io.netty.Consts;
 import com.code.ting.netty.proxy.http.io.netty.client.ChannelPool;
@@ -10,16 +11,23 @@ import io.netty.util.concurrent.FutureListener;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
-public class DefaultRouter implements Router{
+public class DefaultRouter implements Router {
+
+    private RouteFinder finder;
+
+    public DefaultRouter(RouteFinder finder) {
+        this.finder = finder;
+    }
 
     @Override
     public YieldResult route(RouteContext context) throws Throwable {
-        String host = "localhost";
-        int port = 8888;
-        context.getRequest().setHeader("host",host);
-        SocketAddress address = new InetSocketAddress(host, port);
 
-        Future<Channel> clientChannelFuture = context.getRequest().isFull()?
+        From from = new From();
+        To to = finder.find(from);
+        context.getRequest().setHeader("host", to.getHost());
+        SocketAddress address = new InetSocketAddress(to.getHost(), to.getPort());
+
+        Future<Channel> clientChannelFuture = context.getRequest().isFull() ?
             ChannelPool.INSTANCE.acquireSync(address) :
             ChannelPool.INSTANCE.acquireMultiPartChannelSync(address);
 

@@ -1,9 +1,8 @@
-package com.code.ting.netty.proxy.http.chain.filter;
+package com.code.ting.netty.proxy.http.demo;
 
 
 import com.code.ting.netty.proxy.http.chain.Filter;
 import com.code.ting.netty.proxy.http.chain.YieldResult;
-import com.code.ting.netty.proxy.http.chain.context.Context;
 import com.code.ting.netty.proxy.http.chain.context.FilterContext;
 import com.code.ting.netty.proxy.http.chain.context.Result;
 import org.apache.commons.lang3.StringUtils;
