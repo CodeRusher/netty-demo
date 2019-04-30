@@ -12,6 +12,15 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 
 public class DefaultChannelPoolHandler implements ChannelPoolHandler {
 
+    @Override
+    public void channelReleased(Channel ch) throws Exception {
+
+    }
+
+    @Override
+    public void channelAcquired(Channel ch) throws Exception {
+
+    }
 
     @Override
     public void channelCreated(Channel ch) throws Exception {
@@ -26,15 +35,5 @@ public class DefaultChannelPoolHandler implements ChannelPoolHandler {
         pipeline.addLast(new ChunkedWriteHandler());
 
         pipeline.addLast(new ClientHandler());
-    }
-
-    @Override
-    public void channelReleased(Channel ch) throws Exception {
-
-    }
-
-    @Override
-    public void channelAcquired(Channel ch) throws Exception {
-
     }
 }

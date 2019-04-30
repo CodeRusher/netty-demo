@@ -45,7 +45,7 @@ public class ChannelPool {
             protected SimpleChannelPool newPool(SocketAddress socketAddress) {
                 return new FixedChannelPool(
                     bootstrap.remoteAddress(socketAddress),
-                    new DefaultChannelPoolHandler(),
+                    new MultipartChannelPoolHandler(),
                     200);
             }
         };

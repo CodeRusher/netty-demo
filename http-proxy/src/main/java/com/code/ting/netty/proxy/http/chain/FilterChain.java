@@ -121,7 +121,6 @@ public class FilterChain {
         } finally {
             contexts.remove(context.getId());
         }
-
     }
 
 

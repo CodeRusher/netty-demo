@@ -11,6 +11,8 @@ public interface Request {
 
     String getHeader(String key);
 
+    void setHeader(String key,String value);
+
     Map<String, String> getHeaders();
 
     boolean isFull();

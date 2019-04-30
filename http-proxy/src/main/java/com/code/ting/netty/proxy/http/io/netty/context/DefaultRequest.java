@@ -29,6 +29,11 @@ public class DefaultRequest implements Request {
     }
 
     @Override
+    public void setHeader(String key, String value) {
+        httpRequest.headers().set(key,value);
+    }
+
+    @Override
     public Map<String, String> getHeaders() {
         return null;
     }

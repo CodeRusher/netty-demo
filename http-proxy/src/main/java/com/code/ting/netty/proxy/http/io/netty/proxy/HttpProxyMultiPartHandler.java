@@ -15,6 +15,7 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.util.ReferenceCountUtil;
 import org.apache.commons.lang3.StringUtils;
 
 public class HttpProxyMultiPartHandler extends SimpleChannelInboundHandler<HttpObject> {
@@ -22,12 +23,17 @@ public class HttpProxyMultiPartHandler extends SimpleChannelInboundHandler<HttpO
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
         // ctx.fireChannelRead()
+        ReferenceCountUtil.retain(msg);
+
         if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
+
             String contentType = httpRequest.headers().get("Content-Type");
-            if (StringUtils.isNoneBlank(contentType) && contentType.equalsIgnoreCase("multipart")) {
-                ctx.pipeline().remove(Consts.AGGREGATOR_HANDLER_KEY);
-                ctx.pipeline().remove(Consts.HTTP_PROXY_HANDLER_KEY);
+            if (StringUtils.isNoneBlank(contentType) && contentType.toLowerCase().contains("multipart")) {
+//                ctx.pipeline().remove(Consts.AGGREGATOR_HANDLER_KEY);
+//                ctx.pipeline().remove(Consts.HTTP_PROXY_HANDLER_KEY);
+//                ctx.fireChannelRead(msg);
+                ctx.channel().config().setAutoRead(false);
 
                 FilterChain chain = ctx.channel().attr(Consts.CHAIN_KEY).get();
                 DefaultContext context = new DefaultContext(chain);
@@ -40,32 +46,35 @@ public class HttpProxyMultiPartHandler extends SimpleChannelInboundHandler<HttpO
                 connector.setProxyChannel(ctx.channel());
                 connector.setProxyHttpRequest(httpRequest);
                 context.setConnector(connector);
-
                 context.setResponse(new DefaultResponse());
 
-                ctx.channel().config().setAutoRead(false);
                 ctx.channel().attr(Consts.CONTEXT_KEY).set(context);
+
                 chain.fireChain(context);
 
             } else {
                 ctx.channel().attr(Consts.CONTEXT_KEY).set(null);
+                ctx.fireChannelRead(msg);
             }
         }
 
-        if (ctx.channel().attr(Consts.CONTEXT_KEY).get() != null && msg instanceof HttpContent) {
+        if (msg instanceof HttpContent) {
+            if (ctx.channel().attr(Consts.CONTEXT_KEY).get() != null) {
+                Context context = ctx.channel().attr(Consts.CONTEXT_KEY).get();
+                if (context.getStatus() == Status.CANCEL) {
+                    ReferenceCountUtil.release(msg);
+                    return;
+                }
 
-            Context context = ctx.channel().attr(Consts.CONTEXT_KEY).get();
-            if (context.getStatus() == Status.CANCEL) {
-                // ??? need
-                ((HttpContent) msg).release();
-                return;
-            }
-
-            if (msg instanceof LastHttpContent) {
-                context.getConnector().getClientChannel().writeAndFlush(msg);
+                if (msg instanceof LastHttpContent) {
+                    context.getConnector().getClientChannel().writeAndFlush(msg);
+                } else {
+                    context.getConnector().getClientChannel().write(msg);
+                }
             } else {
-                context.getConnector().getClientChannel().write(msg);
+                ctx.fireChannelRead(msg);
             }
+
         }
     }
 }

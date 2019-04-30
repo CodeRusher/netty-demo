@@ -14,9 +14,14 @@ public class DefaultRouter implements Router{
 
     @Override
     public YieldResult route(Context context) throws Throwable {
-        SocketAddress address = new InetSocketAddress("127.0.0.1", 8080);
+        String host = "localhost";
+        int port = 8888;
+        context.getRequest().setHeader("host",host);
+        SocketAddress address = new InetSocketAddress(host, port);
 
-        Future<Channel> clientChannelFuture = ChannelPool.INSTANCE.acquireSync(address);
+        Future<Channel> clientChannelFuture = context.getRequest().isFull()?
+            ChannelPool.INSTANCE.acquireSync(address) :
+            ChannelPool.INSTANCE.acquireMultiPartChannelSync(address);
 
         clientChannelFuture.addListener((FutureListener<Channel>) future -> {
             if (future.isSuccess()) {
@@ -36,10 +41,10 @@ public class DefaultRouter implements Router{
                     clientChannel.write(context.getConnector().getProxyHttpRequest());
                     context.getConnector().setClientChannel(clientChannel);
                     context.getConnector().getProxyChannel().config().setAutoRead(true);
-
                 }
             }
         });
 
-        return YieldResult.YIELD;    }
+        return YieldResult.YIELD;
+    }
 }

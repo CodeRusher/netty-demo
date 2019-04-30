@@ -50,7 +50,7 @@ public class Proxy {
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.attr(Consts.CHAIN_KEY).set(chain);
                         ch.pipeline().addLast("codec", new HttpServerCodec());
-//                        ch.pipeline().addLast(Consts.HTTP_PROXY_MULTIPART_HANDLER_KEY, new HttpProxyMultiPartHandler());
+                        ch.pipeline().addLast(Consts.HTTP_PROXY_MULTIPART_HANDLER_KEY, new HttpProxyMultiPartHandler());
                         ch.pipeline().addLast(Consts.AGGREGATOR_HANDLER_KEY, new HttpObjectAggregator(10 * 1024 * 1024));
                         ch.pipeline().addLast(Consts.HTTP_PROXY_HANDLER_KEY, new HttpProxyHandler());
                     }
