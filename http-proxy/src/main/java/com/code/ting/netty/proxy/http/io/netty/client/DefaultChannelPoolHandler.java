@@ -30,9 +30,9 @@ public class DefaultChannelPoolHandler implements ChannelPoolHandler {
         ChannelPipeline pipeline = channel.pipeline();
 
         pipeline.addLast(new HttpClientCodec());
-        pipeline.addLast(new HttpContentDecompressor());
+//        pipeline.addLast(new HttpContentDecompressor());
         pipeline.addLast(new HttpObjectAggregator(1024 * 1024 * 200));
-        pipeline.addLast(new ChunkedWriteHandler());
+//        pipeline.addLast(new ChunkedWriteHandler());
 
         pipeline.addLast(new ClientHandler());
     }

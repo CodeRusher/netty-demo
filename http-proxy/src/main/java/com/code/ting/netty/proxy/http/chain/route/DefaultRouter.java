@@ -46,6 +46,7 @@ public class DefaultRouter implements Router {
 
                     clientChannel.attr(Consts.CHAIN_KEY).set(context.getChain());
                     clientChannel.attr(Consts.CONTEXT_KEY).set(context);
+                    System.out.println("begin : " + System.currentTimeMillis());
                     clientChannel.writeAndFlush(context.getConnector().getProxyHttpRequest());
 
                 } else {
