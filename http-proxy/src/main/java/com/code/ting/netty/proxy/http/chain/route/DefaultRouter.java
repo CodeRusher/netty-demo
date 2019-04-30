@@ -2,6 +2,7 @@ package com.code.ting.netty.proxy.http.chain.route;
 
 
 import com.code.ting.netty.proxy.http.chain.YieldResult;
+import com.code.ting.netty.proxy.http.chain.context.Result;
 import com.code.ting.netty.proxy.http.chain.context.RouteContext;
 import com.code.ting.netty.proxy.http.io.netty.Consts;
 import com.code.ting.netty.proxy.http.io.netty.client.ChannelPool;
@@ -24,6 +25,11 @@ public class DefaultRouter implements Router {
 
         From from = new From();
         To to = finder.find(from);
+        if (to == null) {
+            context.setResult(Result.of("11000", "route not found"));
+            return YieldResult.FAIL;
+        }
+
         context.getRequest().setHeader("host", to.getHost());
         SocketAddress address = new InetSocketAddress(to.getHost(), to.getPort());
 

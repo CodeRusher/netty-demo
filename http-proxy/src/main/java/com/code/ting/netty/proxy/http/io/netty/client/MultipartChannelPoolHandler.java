@@ -30,7 +30,7 @@ public class MultipartChannelPoolHandler implements ChannelPoolHandler {
         ChannelPipeline pipeline = channel.pipeline();
 
         pipeline.addLast(new HttpClientCodec());
-        pipeline.addLast(new HttpObjectAggregator(1024 * 1024 * 10));
+        pipeline.addLast(new HttpObjectAggregator(1024 * 1024 * 200));
 
         pipeline.addLast(new ClientHandler());
     }

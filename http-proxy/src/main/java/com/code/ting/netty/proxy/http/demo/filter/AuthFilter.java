@@ -1,4 +1,4 @@
-package com.code.ting.netty.proxy.http.demo;
+package com.code.ting.netty.proxy.http.demo.filter;
 
 
 import com.code.ting.netty.proxy.http.chain.Filter;

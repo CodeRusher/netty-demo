@@ -55,6 +55,7 @@ public class FilterChain {
             throw new IllegalStateException(" error in chain, ContextHolder has been removed ,context:");
         }
 
+        fireChain(holder);
     }
 
     private void fireChain(ContextHolder holder) {

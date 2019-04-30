@@ -1,4 +1,4 @@
-package com.code.ting.netty.proxy.http.demo;
+package com.code.ting.netty.proxy.http.demo.filter;
 
 
 import com.code.ting.netty.proxy.http.chain.Filter;
@@ -15,6 +15,5 @@ public class AddHeaderFilter implements Filter {
     @Override
     public void after(FilterContext context) {
         context.getResponse().addHeader("hi", "1");
-
     }
 }
