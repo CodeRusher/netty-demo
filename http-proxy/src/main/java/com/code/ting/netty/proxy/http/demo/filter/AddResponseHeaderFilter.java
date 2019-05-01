@@ -5,7 +5,7 @@ import com.code.ting.netty.proxy.http.chain.Filter;
 import com.code.ting.netty.proxy.http.chain.YieldResult;
 import com.code.ting.netty.proxy.http.chain.context.FilterContext;
 
-public class AddHeaderFilter implements Filter {
+public class AddResponseHeaderFilter implements Filter {
 
     @Override
     public YieldResult pre(FilterContext context) throws Throwable {

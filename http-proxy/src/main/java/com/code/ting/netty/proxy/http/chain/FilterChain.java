@@ -129,7 +129,7 @@ public class FilterChain {
                 return;
             }
             Connector connector = context.getConnector();
-            connector.getProxyChannel().writeAndFlush(connector.getClientHttpResponse());
+            connector.getProxyChannel().writeAndFlush(connector.getClientFullHttpResponse());
 
         } finally {
             contexts.remove(context.getId());

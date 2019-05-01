@@ -22,7 +22,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<FullHttpResponse>
         DefaultResponse response = new DefaultResponse();
         response.setFullHttpResponse(msg);
         ((DefaultContext) context).setResponse(response);
-        context.getConnector().setClientHttpResponse(msg);
+        context.getConnector().setClientFullHttpResponse(msg);
 
         FilterChain chain = ctx.channel().attr(Consts.CHAIN_KEY).get();
         msg.retain();

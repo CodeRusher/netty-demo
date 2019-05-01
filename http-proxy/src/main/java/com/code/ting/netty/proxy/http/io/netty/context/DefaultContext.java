@@ -11,11 +11,14 @@ import com.code.ting.netty.proxy.http.chain.context.Result;
 import com.code.ting.netty.proxy.http.chain.context.RouteContext;
 import com.code.ting.netty.proxy.http.chain.context.Status;
 import com.google.common.collect.Maps;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
+import io.netty.util.DefaultAttributeMap;
 import java.util.HashMap;
 import lombok.Getter;
 import lombok.Setter;
 
-public class DefaultContext implements RouteContext {
+public class DefaultContext extends DefaultAttributeMap implements RouteContext {
 
     public DefaultContext(FilterChain chain){
         this.chain = chain;
@@ -37,9 +40,6 @@ public class DefaultContext implements RouteContext {
     @Getter
     @Setter
     private Status status = Status.NEW;
-
-    @Getter
-    private HashMap<Class<Process>, Object> data = Maps.newHashMap();
 
     @Getter
     FilterChain chain;

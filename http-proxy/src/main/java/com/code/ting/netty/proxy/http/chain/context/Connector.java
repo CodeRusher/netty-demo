@@ -24,6 +24,6 @@ public class Connector {
 
     @Getter
     @Setter
-    private FullHttpResponse clientHttpResponse;
+    private FullHttpResponse clientFullHttpResponse;
 
 }

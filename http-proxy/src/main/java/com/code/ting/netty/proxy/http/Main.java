@@ -6,7 +6,7 @@ import com.code.ting.netty.proxy.http.chain.route.DefaultRouter;
 import com.code.ting.netty.proxy.http.demo.DefaultRouteFinder;
 import com.code.ting.netty.proxy.http.demo.filter.MonitorFilter;
 import com.code.ting.netty.proxy.http.io.netty.proxy.Proxy;
-import com.code.ting.netty.proxy.http.demo.filter.AddHeaderFilter;
+import com.code.ting.netty.proxy.http.demo.filter.AddResponseHeaderFilter;
 
 public class Main {
 
@@ -20,7 +20,7 @@ public class Main {
 
     private static FilterChain buildChain() {
         FilterChain chain = new FilterChain(new DefaultRouter(new DefaultRouteFinder()));
-        chain.addFilter(new AddHeaderFilter());
+        chain.addFilter(new AddResponseHeaderFilter());
         chain.addFilter(new MonitorFilter());
 //        chain.addFilter(new AuthFilter());
         return chain;

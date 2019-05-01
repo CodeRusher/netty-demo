@@ -2,9 +2,9 @@ package com.code.ting.netty.proxy.http.chain.context;
 
 
 import com.code.ting.netty.proxy.http.chain.FilterChain;
-import java.util.HashMap;
+import io.netty.util.AttributeMap;
 
-public interface Context {
+public interface Context extends AttributeMap {
 
     FilterChain getChain();
 
@@ -15,9 +15,5 @@ public interface Context {
     Response getResponse();
 
     void setResult(Result result);
-
-    HashMap<Class<Process>, Object> getData();
-
-
 
 }
