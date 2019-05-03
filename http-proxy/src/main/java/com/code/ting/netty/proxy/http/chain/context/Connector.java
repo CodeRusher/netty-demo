@@ -3,8 +3,9 @@ package com.code.ting.netty.proxy.http.chain.context;
 
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
+import java.util.LinkedList;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,6 +18,10 @@ public class Connector {
     @Getter
     @Setter
     private HttpRequest proxyHttpRequest;
+
+    @Getter
+    @Setter
+    private LinkedList<HttpContent> proxyHttpContents;
 
     @Getter
     @Setter

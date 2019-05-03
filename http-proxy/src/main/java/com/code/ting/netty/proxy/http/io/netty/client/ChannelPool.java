@@ -40,24 +40,10 @@ public class ChannelPool {
                     200);
             }
         };
-        multiPartPoolMap = new AbstractChannelPoolMap<SocketAddress, SimpleChannelPool>() {
-            @Override
-            protected SimpleChannelPool newPool(SocketAddress socketAddress) {
-                return new FixedChannelPool(
-                    bootstrap.remoteAddress(socketAddress),
-                    new MultipartChannelPoolHandler(),
-                    200);
-            }
-        };
     }
 
     public Future<Channel> acquireSync(SocketAddress address) throws InterruptedException {
         final SimpleChannelPool pool = defaultPoolMap.get(address);
-        return pool.acquire().sync();
-    }
-
-    public Future<Channel> acquireMultiPartChannelSync(SocketAddress address) throws InterruptedException {
-        final SimpleChannelPool pool = multiPartPoolMap.get(address);
         return pool.acquire().sync();
     }
 

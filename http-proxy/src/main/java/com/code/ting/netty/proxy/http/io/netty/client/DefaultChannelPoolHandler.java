@@ -27,13 +27,11 @@ public class DefaultChannelPoolHandler implements ChannelPoolHandler {
         NioSocketChannel channel = (NioSocketChannel) ch;
         channel.config().setKeepAlive(true);
         channel.config().setTcpNoDelay(true);
+
         ChannelPipeline pipeline = channel.pipeline();
-
-        pipeline.addLast(new HttpClientCodec());
-//        pipeline.addLast(new HttpContentDecompressor());
-        pipeline.addLast(new HttpObjectAggregator(1024 * 1024 * 200));
-//        pipeline.addLast(new ChunkedWriteHandler());
-
-        pipeline.addLast(new ClientHandler());
+        pipeline.addLast("clientCodec", new HttpClientCodec());
+        pipeline.addLast("aggregator",new HttpObjectAggregator(1024 * 1024 * 200));
+        pipeline.addLast("clientHandler",new ClientHandler());
     }
+
 }

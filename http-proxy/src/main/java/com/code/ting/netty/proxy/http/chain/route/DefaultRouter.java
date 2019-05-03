@@ -33,9 +33,7 @@ public class DefaultRouter implements Router {
         context.getRequest().setHeader("host", to.getHost());
         SocketAddress address = new InetSocketAddress(to.getHost(), to.getPort());
 
-        Future<Channel> clientChannelFuture = context.getRequest().isFull() ?
-            ChannelPool.INSTANCE.acquireSync(address) :
-            ChannelPool.INSTANCE.acquireMultiPartChannelSync(address);
+        Future<Channel> clientChannelFuture = ChannelPool.INSTANCE.acquireSync(address);
 
         clientChannelFuture.addListener((FutureListener<Channel>) future -> {
             if (future.isSuccess()) {
@@ -44,6 +42,8 @@ public class DefaultRouter implements Router {
 
                 if (context.getRequest().isFull()) {
 
+                    System.out.println("route full");
+
                     clientChannel.attr(Consts.CHAIN_KEY).set(context.getChain());
                     clientChannel.attr(Consts.CONTEXT_KEY).set(context);
                     System.out.println("begin : " + System.currentTimeMillis());
@@ -51,11 +51,13 @@ public class DefaultRouter implements Router {
 
                 } else {
 
+                    System.out.println("route multipart");
+
                     clientChannel.attr(Consts.CHAIN_KEY).set(context.getChain());
                     clientChannel.attr(Consts.CONTEXT_KEY).set(context);
-                    clientChannel.write(context.getConnector().getProxyHttpRequest());
+                    clientChannel.pipeline().context("aggregator").write(context.getConnector().getProxyHttpRequest());
+//                    clientChannel.write(context.getConnector().getProxyHttpRequest());
                     context.getConnector().setClientChannel(clientChannel);
-                    context.getConnector().getProxyChannel().config().setAutoRead(true);
                 }
             }
         });

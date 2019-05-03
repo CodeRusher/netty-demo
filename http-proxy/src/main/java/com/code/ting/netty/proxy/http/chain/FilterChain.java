@@ -1,11 +1,20 @@
 package com.code.ting.netty.proxy.http.chain;
 
 
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
+
 import com.code.ting.netty.proxy.http.chain.context.Connector;
 import com.code.ting.netty.proxy.http.chain.context.RouteContext;
 import com.code.ting.netty.proxy.http.chain.context.Status;
 import com.code.ting.netty.proxy.http.chain.context.Step;
 import com.code.ting.netty.proxy.http.chain.route.Router;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentSkipListMap;
 import lombok.Data;
@@ -60,6 +69,7 @@ public class FilterChain {
 
     private void fireChain(ContextHolder holder) {
         RouteContext context = holder.getContext();
+
         if (holder.step == Step.PRE) {
             while (holder.index + 1 < filters.size()) {
                 holder.index++;
@@ -85,7 +95,9 @@ public class FilterChain {
 
             holder.setStep(Step.ROUTE);
         }
-        if (holder.step == Step.ROUTE) {
+
+        if (Status.CANCEL != holder.getContext().getStatus() && !holder.hasThrowable
+            && holder.step == Step.ROUTE) {
             holder.setStep(Step.AFTER);
             try {
 
@@ -121,11 +133,13 @@ public class FilterChain {
         // render response
         try {
             if (holder.getContext().getStatus() == Status.CANCEL) {
-                holder.getContext().getConnector().getProxyChannel().writeAndFlush("cancel");
+                FullHttpResponse response = genResponse("1000", "cancel");
+                response(holder.getContext().getConnector().getProxyChannel(), response);
                 return;
             }
             if (holder.hasThrowable) {
-                context.getConnector().getProxyChannel().writeAndFlush("error".getBytes());
+                FullHttpResponse response = genResponse("1000", "error");
+                response(holder.getContext().getConnector().getProxyChannel(), response);
                 return;
             }
             Connector connector = context.getConnector();
@@ -144,5 +158,17 @@ public class FilterChain {
         int index = -1;
         Step step = Step.PRE;
         boolean hasThrowable = false;
+    }
+
+    private void response(Channel channel, FullHttpResponse response) {
+        channel.writeAndFlush(response);
+    }
+
+    private FullHttpResponse genResponse(String code, String msg) {
+        byte[] content = msg.getBytes();
+        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(content));
+        response.headers().set(CONTENT_TYPE, "application/txt");
+        response.headers().setInt(CONTENT_LENGTH, response.content().readableBytes());
+        return response;
     }
 }
