@@ -6,7 +6,7 @@
 
 ### ErrorResponse
 
-### Throwable
+### Throwable/Timeout
 
 ### HttpRequest/HttpResponse define
 
