@@ -5,3 +5,5 @@
 ### ErrorResponse
 
 ### Throwable
+
+### HttpRequest/HttpResponse define
