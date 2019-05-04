@@ -19,13 +19,16 @@ public class Connector {
     @Setter
     private HttpRequest proxyHttpRequest;
 
+    /**
+     * for multipart
+     */
     @Getter
     @Setter
     private LinkedList<HttpContent> proxyHttpContents;
 
     @Getter
     @Setter
-    private Channel clientChannel;
+    private volatile Channel clientChannel;
 
     @Getter
     @Setter

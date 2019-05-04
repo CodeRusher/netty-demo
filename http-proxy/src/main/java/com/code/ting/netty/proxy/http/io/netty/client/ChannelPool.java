@@ -17,9 +17,8 @@ import java.net.SocketAddress;
 public class ChannelPool {
 
     private final Bootstrap bootstrap = new Bootstrap();
-    private final EventLoopGroup workers = new NioEventLoopGroup(4);
+    private final EventLoopGroup workers = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
     private ChannelPoolMap<SocketAddress, SimpleChannelPool> defaultPoolMap;
-    private ChannelPoolMap<SocketAddress, SimpleChannelPool> multiPartPoolMap;
 
     public static final ChannelPool INSTANCE = new ChannelPool();
 

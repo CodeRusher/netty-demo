@@ -16,16 +16,21 @@ public class ClientHandler extends SimpleChannelInboundHandler<FullHttpResponse>
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse msg) throws Exception {
-        System.out.println("end : " + System.currentTimeMillis());
+
         RouteContext context = ctx.channel().attr(Consts.CONTEXT_KEY).get();
+        log.debug("{} response at : {}", context.getId(), System.currentTimeMillis());
 
         DefaultResponse response = new DefaultResponse();
         response.setFullHttpResponse(msg);
         ((DefaultContext) context).setResponse(response);
+
         context.getConnector().setClientFullHttpResponse(msg);
 
         FilterChain chain = ctx.channel().attr(Consts.CHAIN_KEY).get();
         msg.retain();
-        chain.fireChain(context);
+//        chain.fireChain(context);
+        FilterChain.THREAD_POOL_EXECUTOR.execute(() -> chain.fireChain(context));
+        log.debug("{} fireChain from : ClientHandler", context.getId());
+
     }
 }

@@ -17,8 +17,10 @@ import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.util.ReferenceCountUtil;
 import java.util.LinkedList;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+@Slf4j
 public class HttpProxyMultiPartHandler extends SimpleChannelInboundHandler<HttpObject> {
 
     private static final String MULTIPART_KEY_WORD = "multipart";
@@ -29,12 +31,14 @@ public class HttpProxyMultiPartHandler extends SimpleChannelInboundHandler<HttpO
         ReferenceCountUtil.retain(msg);
 
         if (msg instanceof HttpRequest) {
+
             HttpRequest httpRequest = (HttpRequest) msg;
 
             String contentType = httpRequest.headers().get("Content-Type");
             if (StringUtils.isNoneBlank(contentType) && contentType.toLowerCase().contains(MULTIPART_KEY_WORD)) {
                 FilterChain chain = ctx.channel().attr(Consts.CHAIN_KEY).get();
                 DefaultContext context = new DefaultContext(chain);
+                log.debug("{} request at : {}", context.getId(), System.currentTimeMillis());
 
                 DefaultRequest request = new DefaultRequest();
                 request.setHttpRequest(httpRequest);
@@ -43,12 +47,15 @@ public class HttpProxyMultiPartHandler extends SimpleChannelInboundHandler<HttpO
                 Connector connector = new Connector();
                 connector.setProxyChannel(ctx.channel());
                 connector.setProxyHttpRequest(httpRequest);
+                connector.setProxyHttpContents(new LinkedList<>());
                 context.setConnector(connector);
                 context.setResponse(new DefaultResponse());
 
                 ctx.channel().attr(Consts.CONTEXT_KEY).set(context);
 
-                chain.fireChain(context);
+//                chain.fireChain(context);
+                FilterChain.THREAD_POOL_EXECUTOR.execute(() -> chain.fireChain(context));
+                log.debug("{} fireChain from : HttpProxyMultiPartHandler", context.getId());
             } else {
                 ctx.channel().attr(Consts.CONTEXT_KEY).set(null);
                 ctx.fireChannelRead(msg);
@@ -56,46 +63,35 @@ public class HttpProxyMultiPartHandler extends SimpleChannelInboundHandler<HttpO
         }
 
         if (msg instanceof HttpContent) {
-            HttpContent httpContent = (HttpContent) msg;
-//            System.out.println("---------------");
-            if (ctx.channel().attr(Consts.CONTEXT_KEY).get() != null) {
-                RouteContext context = ctx.channel().attr(Consts.CONTEXT_KEY).get();
-                if (context.getStatus() == Status.CANCEL) {
-                    ReferenceCountUtil.release(msg);
-                    return;
-                }
 
-                Connector connector = context.getConnector();
-
-                Channel clientChannel = connector.getClientChannel();
-                LinkedList<HttpContent> httpContents = connector.getProxyHttpContents();
-                if (httpContents == null) {
-                    httpContents = new LinkedList<>();
-                    connector.setProxyHttpContents(httpContents);
-                }
-
-                if (clientChannel == null) {
-                    httpContents.addLast(httpContent);
-                } else {
-
-                    if (httpContents.isEmpty()) {
-                        clientChannel.pipeline().context("aggregator").writeAndFlush(httpContent);
-                    }
-                    //
-                    else {
-                        while (clientChannel != null && !httpContents.isEmpty()) {
-                            HttpContent stageHttpContent = httpContents.removeFirst();
-                            clientChannel.pipeline().context("aggregator").writeAndFlush(stageHttpContent);
-
-                        }
-                        clientChannel.pipeline().context("aggregator").writeAndFlush(httpContent);
-                    }
-                }
-
-            } else {
+            if (ctx.channel().attr(Consts.CONTEXT_KEY).get() == null) {
                 ctx.fireChannelRead(msg);
+                return;
             }
 
+            HttpContent httpContent = (HttpContent) msg;
+
+            RouteContext context = ctx.channel().attr(Consts.CONTEXT_KEY).get();
+            if (context.getStatus() == Status.CANCEL) {
+                ReferenceCountUtil.release(msg);
+                return;
+            }
+
+            Connector connector = context.getConnector();
+            Channel clientChannel = connector.getClientChannel();
+
+            if (clientChannel == null) {
+                synchronized (context) {
+                    clientChannel = connector.getClientChannel();
+                    if (clientChannel == null) {
+                        connector.getProxyHttpContents().addLast(httpContent);
+                    } else {
+                        clientChannel.pipeline().context("aggregator").writeAndFlush(httpContent);
+                    }
+                }
+            } else {
+                clientChannel.pipeline().context("aggregator").writeAndFlush(httpContent);
+            }
         }
     }
 }

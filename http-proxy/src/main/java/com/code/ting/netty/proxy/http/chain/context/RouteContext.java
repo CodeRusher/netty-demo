@@ -8,4 +8,7 @@ public interface RouteContext extends FilterContext, Context {
     void setStatus(Status status);
 
     Status getStatus();
+
+    CancelReason getCancelReason();
+
 }

@@ -14,6 +14,6 @@ public interface Context extends AttributeMap {
 
     Response getResponse();
 
-    void setResult(Result result);
+    void setCancelReason(CancelReason cancelReason);
 
 }
