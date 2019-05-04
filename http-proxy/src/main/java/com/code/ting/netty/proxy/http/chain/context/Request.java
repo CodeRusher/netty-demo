@@ -1,19 +1,18 @@
 package com.code.ting.netty.proxy.http.chain.context;
 
 
-import java.util.Map;
+import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpMethod;
 
 public interface Request {
 
-    String getMethod();
+    HttpMethod method();
 
-    String getUrl();
+    String uri();
 
-    String getHeader(String key);
+    void setUri(String uri);
 
-    void setHeader(String key,String value);
-
-    Map<String, String> getHeaders();
+    HttpHeaders headers();
 
     boolean isFull();
 

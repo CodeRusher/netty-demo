@@ -6,6 +6,7 @@ import com.code.ting.netty.proxy.http.chain.context.CancelReason;
 import com.code.ting.netty.proxy.http.chain.context.RouteContext;
 import com.code.ting.netty.proxy.http.io.netty.Consts;
 import com.code.ting.netty.proxy.http.io.netty.client.ChannelPool;
+import com.code.ting.netty.proxy.http.util.StatusCode;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.util.concurrent.Future;
@@ -27,14 +28,14 @@ public class DefaultRouter implements Router {
     @Override
     public YieldResult route(RouteContext context) throws Throwable {
 
-        From from = new From();
+        From from = From.of(context.getRequest(), null);
         To to = finder.find(from);
         if (to == null) {
-            context.setCancelReason(CancelReason.of("11000", "route not found"));
+            context.setCancelReason(CancelReason.of(StatusCode.ROUTE_FAIL.getCode(), "route not found"));
             return YieldResult.FAIL;
         }
 
-        context.getRequest().setHeader("host", to.getHost());
+        context.getRequest().headers().set("host", to.getHost());
         SocketAddress address = new InetSocketAddress(to.getHost(), to.getPort());
 
         Future<Channel> clientChannelFuture = ChannelPool.INSTANCE.acquireSync(address);

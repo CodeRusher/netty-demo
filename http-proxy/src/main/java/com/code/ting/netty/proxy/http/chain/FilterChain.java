@@ -176,7 +176,7 @@ public class FilterChain {
             }
             // error occurred
             if (holder.hasThrowable) {
-                RenderUtils.response(channel, StatusCode.SYS_STATUS_CODE.getCode(), StatusCode.SYS_STATUS_CODE.getMsg());
+                RenderUtils.response(channel, StatusCode.SYS_ERROR.getCode(), StatusCode.SYS_ERROR.getMsg());
                 return;
             }
             // remote's response

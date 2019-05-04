@@ -4,10 +4,10 @@
 
 ### RouteFinder
 
+### HttpRequest/HttpResponse define
+
 ### ErrorResponse
 
 ### Throwable/Timeout
-
-### HttpRequest/HttpResponse define
 
 ### sentinel

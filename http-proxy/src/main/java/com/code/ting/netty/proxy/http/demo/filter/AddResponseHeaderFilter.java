@@ -14,6 +14,6 @@ public class AddResponseHeaderFilter implements Filter {
 
     @Override
     public void after(FilterContext context) {
-        context.getResponse().addHeader("hi", "1");
+        context.getResponse().headers().set("hi", "1");
     }
 }
