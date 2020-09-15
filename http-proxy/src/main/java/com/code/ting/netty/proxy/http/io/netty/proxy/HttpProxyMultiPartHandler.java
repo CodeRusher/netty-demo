@@ -30,12 +30,14 @@ public class HttpProxyMultiPartHandler extends SimpleChannelInboundHandler<HttpO
 
         ReferenceCountUtil.retain(msg);
 
+        // 请求头
         if (msg instanceof HttpRequest) {
 
             HttpRequest httpRequest = (HttpRequest) msg;
 
             String contentType = httpRequest.headers().get("Content-Type");
             if (StringUtils.isNoneBlank(contentType) && contentType.toLowerCase().contains(MULTIPART_KEY_WORD)) {
+                // 备注：FilterChain是在ChannelInitializer中添加的
                 FilterChain chain = ctx.channel().attr(Consts.CHAIN_KEY).get();
                 DefaultContext context = new DefaultContext(chain);
                 log.debug("{} request at : {}", context.getId(), System.currentTimeMillis());
@@ -56,15 +58,19 @@ public class HttpProxyMultiPartHandler extends SimpleChannelInboundHandler<HttpO
 //                chain.fireChain(context);
                 FilterChain.THREAD_POOL_EXECUTOR.execute(() -> chain.fireChain(context));
                 log.debug("{} fireChain from : HttpProxyMultiPartHandler", context.getId());
+
             } else {
                 ctx.channel().attr(Consts.CONTEXT_KEY).set(null);
+                // 非MultiPart请求，传递给ChannelPipeline中的下一个ChannelHandler
                 ctx.fireChannelRead(msg);
             }
         }
 
+        // 请求体
         if (msg instanceof HttpContent) {
 
             if (ctx.channel().attr(Consts.CONTEXT_KEY).get() == null) {
+                // 非MultiPart请求，传递给ChannelPipeline中的下一个ChannelHandler
                 ctx.fireChannelRead(msg);
                 return;
             }
@@ -80,6 +86,9 @@ public class HttpProxyMultiPartHandler extends SimpleChannelInboundHandler<HttpO
             Connector connector = context.getConnector();
             Channel clientChannel = connector.getClientChannel();
 
+            // 基本逻辑应该是如果clientChannel已经建立，则直接使用clientChannel发送，如果还没有建立，则先缓存
+            // synchronized锁的作用是，等待clientChannel将缓存中的数据发送完毕，这里可能产生阻塞，不知道性能如何
+            // todo：这里逻辑写的有点乱，需要优化
             if (clientChannel == null) {
                 synchronized (context) {
                     clientChannel = connector.getClientChannel();

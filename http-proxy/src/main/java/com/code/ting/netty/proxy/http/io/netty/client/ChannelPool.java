@@ -14,6 +14,9 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.Future;
 import java.net.SocketAddress;
 
+/**
+ * Channel池
+ */
 public class ChannelPool {
 
     private final Bootstrap bootstrap = new Bootstrap();

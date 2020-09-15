@@ -16,9 +16,6 @@ public class EventEncoder extends MessageToMessageEncoder<Event> {
         this.remoteAddress = remoteAddress;
     }
 
-
-
-
     @Override
     protected void encode(ChannelHandlerContext ctx, Event e, List<Object> out) throws Exception {
         int tag = e.getTag();

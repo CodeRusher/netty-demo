@@ -38,6 +38,7 @@ public class DefaultRouter implements Router {
         context.getRequest().headers().set("host", to.getHost());
         SocketAddress address = new InetSocketAddress(to.getHost(), to.getPort());
 
+        // 获取client channel
         Future<Channel> clientChannelFuture = ChannelPool.INSTANCE.acquireSync(address);
 
         clientChannelFuture.addListener((FutureListener<Channel>) future -> {
@@ -58,6 +59,9 @@ public class DefaultRouter implements Router {
 
                     clientChannel.attr(Consts.CHAIN_KEY).set(context.getChain());
                     clientChannel.attr(Consts.CONTEXT_KEY).set(context);
+
+                    // 建立连接后，先把Http请求头和缓存的Http内容都先发出去
+                    // todo:需要优化
                     clientChannel.pipeline().context("aggregator")
                         .write(context.getConnector().getProxyHttpRequest());
 

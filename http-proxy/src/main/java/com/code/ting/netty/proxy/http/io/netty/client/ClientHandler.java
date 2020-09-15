@@ -11,6 +11,9 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpResponse;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 接受target服务的响应
+ */
 @Slf4j
 public class ClientHandler extends SimpleChannelInboundHandler<FullHttpResponse> {
 
