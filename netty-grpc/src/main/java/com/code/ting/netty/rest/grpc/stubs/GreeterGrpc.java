@@ -13,15 +13,15 @@ import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
  * </pre>
  */
 @javax.annotation.Generated(
-    value = "by gRPC proto compiler (version 1.16.1)",
-    comments = "Source: helloworld.proto")
+    value = "by gRPC com.code.ting.netty.rest.grpc.proto compiler (version 1.16.1)",
+    comments = "Source: helloworld.com.code.ting.netty.rest.grpc.proto")
 public final class GreeterGrpc {
 
   private GreeterGrpc() {}
 
   public static final String SERVICE_NAME = "helloworld.Greeter";
 
-  // Static method descriptors that strictly reflect the proto.
+  // Static method descriptors that strictly reflect the com.code.ting.netty.rest.grpc.proto.
   private static volatile io.grpc.MethodDescriptor<HelloRequest,
       HelloReply> getSayHelloMethod;
 
