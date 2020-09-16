@@ -4,6 +4,7 @@ package com.code.ting.netty.proxy.http.io.netty.proxy;
 import com.code.ting.netty.proxy.http.chain.FilterChain;
 import com.code.ting.netty.proxy.http.io.netty.Consts;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -44,6 +45,7 @@ public class Proxy {
             bootstrap.option(ChannelOption.SO_BACKLOG, 1024);
             bootstrap.group(boss, worker)
                 .channel(NioServerSocketChannel.class)
+                .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .localAddress(new InetSocketAddress(port))
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
