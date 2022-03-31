@@ -20,7 +20,7 @@
 
     <properties>
         <!--framework-->
-        <spring.version>4.3.8.RELEASE</spring.version>
+        <spring.version>5.3.18</spring.version>
         <netty.version>4.1.29.Final</netty.version>
         <!--util-->
         <lombok.version>1.16.16</lombok.version>
